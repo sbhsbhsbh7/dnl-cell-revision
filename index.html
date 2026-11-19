@@ -124,28 +124,33 @@
   .fill-text input.wrong { border-color: var(--ko); background: var(--ko-bg); }
   .fix { color: var(--ok); font-weight: 700; font-size: .9em; margin-left: 3px; }
 
-  .order-slots { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-  .slot {
-    min-height: 44px; border: 2px dashed #9fb4ba; border-radius: 8px; background: #fff;
-    padding: 8px 10px 8px 38px; position: relative; cursor: pointer; font-size: .93em;
+  .sortable { display: flex; flex-direction: column; gap: 8px; }
+  .drag-card {
+    display: flex; align-items: center; gap: 8px; background: #fff; border: 2px solid var(--lc, var(--accent));
+    border-radius: 8px; padding: 4px 4px 4px 0; font-size: .92em; position: relative;
+    user-select: none; -webkit-user-select: none; cursor: grab; transition: box-shadow .15s ease;
   }
-  .slot::before {
-    content: attr(data-n); position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
-    width: 21px; height: 21px; border-radius: 50%; background: var(--lc, var(--accent)); color: #fff;
+  .drag-card .grip {
+    touch-action: none; align-self: stretch; display: flex; align-items: center; gap: 6px;
+    padding: 0 8px 0 10px; min-width: 60px; cursor: grab;
+  }
+  .drag-card .dots { font-size: 1.35em; color: #8a979c; }
+  .drag-card .num {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--lc, var(--accent)); color: #fff;
     font-size: .78em; font-weight: 700; display: flex; align-items: center; justify-content: center;
   }
-  .slot.filled { border-style: solid; border-color: var(--lc, var(--accent)); }
-  .slot.filled::after { content: "✕"; position: absolute; right: 9px; top: 8px; color: #8a979c; font-size: .85em; }
-  .slot.correct { border-color: var(--ok); background: var(--ok-bg); }
-  .slot.wrong { border-color: var(--ko); background: var(--ko-bg); }
-  .slot.correct::after, .slot.wrong::after { content: ""; }
-  .arrow { text-align: center; color: #8a979c; font-size: .9em; line-height: 1; }
-  .pool { display: flex; flex-wrap: wrap; gap: 8px; }
-  .card {
-    background: #fff; border: 2px solid var(--lc, var(--accent)); border-radius: 8px; padding: 8px 10px;
-    cursor: pointer; font-size: .9em; flex: 1 1 260px;
+  .drag-card .t { flex: 1; padding: 6px 0; }
+  .drag-card .mv { display: flex; flex-direction: column; gap: 2px; }
+  .drag-card .mv button {
+    border: 1px solid var(--line); background: var(--soft); border-radius: 5px; width: 30px; height: 24px;
+    font-size: .7em; color: var(--muted); cursor: pointer;
   }
-  .card.used { display: none; }
+  .drag-card.dragging { z-index: 5; box-shadow: 0 10px 24px rgba(0,0,0,.25); cursor: grabbing; }
+  .drag-card.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .drag-card.wrong { border-color: var(--ko); background: var(--ko-bg); }
+  .sortable.locked .drag-card { cursor: default; }
+  .sortable.locked .dots, .sortable.locked .mv { display: none; }
+  .sortable.locked .grip { min-width: 0; cursor: default; }
 
   .sort-item { background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
   .sort-item .txt { margin-bottom: 8px; }
@@ -650,46 +655,75 @@ LESSONS[4] = {
   };
 
   R.order = function (ex, body) {
-    body.appendChild(el("p", { class: "ex-help" }, "Tap the cards in the right order. Tap a filled box to remove it."));
-    const slotsBox = el("div", { class: "order-slots" });
+    body.appendChild(el("p", { class: "ex-help" }, "Drag the cards to put them in the right order, from 1 at the top. On a phone, drag them by the ⠿ and the number. You can also use the ▲ ▼ arrows."));
     const n = ex.items.length;
-    const slots = [];
-    let placed = Array(n).fill(null);
-    for (let k = 0; k < n; k++) {
-      if (k) slotsBox.appendChild(el("div", { class: "arrow" }, "↓"));
-      const s = el("div", { class: "slot", "data-n": k + 1 });
-      s.addEventListener("click", () => { if (locked || placed[k] == null) return; placed[k] = null; render(); });
-      slotsBox.appendChild(s); slots.push(s);
-    }
-    const pool = el("div", { class: "pool" });
-    const cards = [];
-    shuffledIdx(n).forEach(i => {
-      const c = el("div", { class: "card" }, ex.items[i]);
-      c.addEventListener("click", () => {
-        if (locked) return;
-        const free = placed.indexOf(null); if (free < 0) return;
-        placed[free] = i; render();
-      });
-      pool.appendChild(c); cards[i] = c;
+    const list = el("div", { class: "sortable" });
+    let order = shuffledIdx(n), locked = false;
+    const cards = ex.items.map((t, i) => {
+      const c = el("div", { class: "drag-card" },
+        "<span class='grip'><span class='dots' aria-hidden='true'>⠿</span><span class='num'></span></span><span class='t'>" + t + "</span>" +
+        "<span class='mv'><button type='button' aria-label='Move up'>▲</button><button type='button' aria-label='Move down'>▼</button></span>");
+      const [up, down] = c.querySelectorAll(".mv button");
+      up.addEventListener("click", () => move(i, -1));
+      down.addEventListener("click", () => move(i, 1));
+      c.addEventListener("pointerdown", e => startDrag(e, i));
+      return c;
     });
-    body.appendChild(slotsBox); body.appendChild(pool);
-    let locked = false;
+    body.appendChild(list);
+
     function render() {
-      slots.forEach((s, k) => { s.innerHTML = placed[k] == null ? "" : ex.items[placed[k]]; s.classList.toggle("filled", placed[k] != null); });
-      cards.forEach((c, i) => c.classList.toggle("used", placed.includes(i)));
+      order.forEach((i, k) => { list.appendChild(cards[i]); cards[i].querySelector(".num").textContent = k + 1; });
     }
+    function renumber() { order.forEach((i, k) => cards[i].querySelector(".num").textContent = k + 1); }
+    function move(i, d) {
+      if (locked) return;
+      const k = order.indexOf(i), j = k + d;
+      if (j < 0 || j >= n) return;
+      [order[k], order[j]] = [order[j], order[k]]; render();
+    }
+    /* drag: the card follows the pointer; neighbours swap when it passes their middle */
+    function startDrag(e, i) {
+      if (locked || e.button > 0 || e.target.closest(".mv")) return;
+      if (e.pointerType !== "mouse" && !e.target.closest(".grip")) return;
+      e.preventDefault();
+      const card = cards[i];
+      const offset = e.clientY - card.getBoundingClientRect().top;
+      card.classList.add("dragging");
+      try { card.setPointerCapture(e.pointerId); } catch (err) {}
+      function onMove(ev) {
+        if (ev.clientY < 70) window.scrollBy(0, -10);
+        else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 10);
+        const y = ev.clientY, k = order.indexOf(i);
+        const prev = order[k - 1], next = order[k + 1];
+        if (prev != null) { const r = cards[prev].getBoundingClientRect(); if (y < r.top + r.height / 2) { list.insertBefore(cards[prev], card.nextSibling); [order[k - 1], order[k]] = [i, prev]; renumber(); } }
+        if (next != null) { const r = cards[next].getBoundingClientRect(); if (y > r.top + r.height / 2) { list.insertBefore(cards[next], card); [order[k], order[k + 1]] = [next, i]; renumber(); } }
+        card.style.transform = "none";
+        const natural = card.getBoundingClientRect().top;
+        card.style.transform = "translateY(" + (y - offset - natural) + "px)";
+      }
+      function onUp() {
+        card.classList.remove("dragging"); card.style.transform = "";
+        card.removeEventListener("pointermove", onMove);
+        card.removeEventListener("pointerup", onUp);
+        card.removeEventListener("pointercancel", onUp);
+      }
+      card.addEventListener("pointermove", onMove);
+      card.addEventListener("pointerup", onUp);
+      card.addEventListener("pointercancel", onUp);
+    }
+    render();
     return {
-      getResp: () => placed.includes(null) ? null : placed.slice(),
-      setResp: r => { placed = r.slice(); render(); },
+      getResp: () => order.slice(),
+      setResp: r => { order = r.slice(); render(); },
       grade: r => { const ok = r.map((v, k) => v === k); return { pts: ok.filter(Boolean).length / n, ok }; },
       show: (r, g) => {
-        slots.forEach((s, k) => s.classList.add(g.ok[k] ? "correct" : "wrong"));
+        order.forEach((i, k) => cards[i].classList.add(g.ok[k] ? "correct" : "wrong"));
         if (g.ok.includes(false)) {
           body.appendChild(el("div", { class: "statement", style: "margin-top:10px" },
             "<strong>Correct order:</strong><ol style='margin:6px 0 0 20px'>" + ex.items.map(t => "<li>" + t + "</li>").join("") + "</ol>"));
         }
       },
-      lock: () => { locked = true; pool.style.display = "none"; }
+      lock: () => { locked = true; list.classList.add("locked"); }
     };
   };
 
