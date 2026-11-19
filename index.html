@@ -183,6 +183,16 @@
   .feedback .verdict { font-weight: 700; margin-bottom: 4px; }
   .feedback .mistake { margin-top: 6px; font-style: italic; }
 
+  .media-list { display: flex; flex-direction: column; gap: 8px; }
+  .media-item {
+    display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; text-decoration: none; color: var(--ink);
+  }
+  .media-item:hover { border-color: var(--lc, var(--accent)); }
+  .media-item .ico { font-size: 1.5em; line-height: 1.2; }
+  .media-item .kind { font-size: .72em; text-transform: uppercase; letter-spacing: .5px; color: var(--lc, var(--accent)); font-weight: 700; }
+  .media-item .ttl { font-weight: 700; }
+  .media-item .src, .media-item .nt { color: var(--muted); font-size: .88em; }
   details.key { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
   details.key summary { cursor: pointer; font-weight: 700; color: var(--lc, var(--accent)); }
   details.key ul { margin: 10px 0 0 18px; }
@@ -248,6 +258,9 @@ const LESSONS = {};
 
 <script>
 LESSONS[1] = {
+  media: [
+    { kind: "Video", title: "The wacky history of cell theory", source: "TED-Ed, about 6 min", url: "https://ed.ted.com/lessons/the-wacky-history-of-cell-theory", note: "From Hooke and Leeuwenhoek to cell theory. The beginning is about this lesson." }
+  ],
   objectives: [
     { id: "o1", text: "I can order objects by size and say which ones need a microscope." },
     { id: "o2", text: "I can explain what Hooke saw in cork, and what it did not prove." },
@@ -314,6 +327,9 @@ LESSONS[1] = {
 
 <script>
 LESSONS[2] = {
+  media: [
+    { kind: "Video", title: "The wacky history of cell theory", source: "TED-Ed, about 6 min", url: "https://ed.ted.com/lessons/the-wacky-history-of-cell-theory", note: "The whole story of cell theory, including the disagreement between Schleiden and Schwann." }
+  ],
   objectives: [
     { id: "o1", text: "I can say what Brown, Schleiden, Schwann and Remak–Virchow each added." },
     { id: "o2", text: "I can state the three principles of cell theory." },
@@ -382,6 +398,10 @@ LESSONS[2] = {
 
 <script>
 LESSONS[3] = {
+  media: [
+    { kind: "Video", title: "The immortal cells of Henrietta Lacks", source: "TED-Ed, about 4 min 30", url: "https://ed.ted.com/lessons/the-immortal-cells-of-henrietta-lacks-robin-bulleri", note: "Henrietta’s life, HeLa cells and the question of consent." },
+    { kind: "Podcast", title: "Henrietta’s Tumor", source: "Radiolab, with a transcript", url: "https://radiolab.org/podcast/91716-henriettas-tumor", note: "To go further: with Rebecca Skloot and Henrietta’s daughter Deborah. Long and fast: read the transcript while you listen." }
+  ],
   objectives: [
     { id: "o1", text: "I can explain why normal cells stop dividing (signals, telomeres, senescence)." },
     { id: "o2", text: "I can explain why HeLa is an immortal cell line, and what it made possible." },
@@ -451,6 +471,9 @@ LESSONS[3] = {
 
 <script>
 LESSONS[4] = {
+  media: [
+    { kind: "Read", title: "The life of Dolly", source: "The Roslin Institute", url: "https://vet.ed.ac.uk/roslin/about/history/dolly/facts/life-of-dolly", note: "Dolly’s story, told by the institute where she was born." }
+  ],
   objectives: [
     { id: "o1", text: "I can describe the steps of somatic cell nuclear transfer and the roles of the three sheep." },
     { id: "o2", text: "I can tell a clue from strong evidence about Dolly’s origin." },
@@ -952,6 +975,19 @@ LESSONS[4] = {
     after.appendChild(updatePlan);
     if (lessonScore(n).done) { out.innerHTML = reviewTable(n); updatePlan.style.display = "block"; }
     panel.appendChild(after);
+
+    if (L.media && L.media.length) {
+      panel.appendChild(el("div", { class: "section-title" }, "④ Watch, listen or read (optional)"));
+      const ICON = { Video: "▶️", Podcast: "🎧", Read: "📄" };
+      const list = el("div", { class: "media-list" });
+      L.media.forEach(m => {
+        const a = el("a", { class: "media-item", href: m.url, target: "_blank", rel: "noopener" });
+        a.innerHTML = "<span class='ico'>" + (ICON[m.kind] || "🔗") + "</span><span><span class='kind'>" + m.kind +
+          "</span><br><span class='ttl'>" + m.title + "</span> <span class='src'>(" + m.source + ")</span><br><span class='nt'>" + m.note + "</span></span>";
+        list.appendChild(a);
+      });
+      panel.appendChild(list);
+    }
 
     const key = el("details", { class: "key" });
     key.appendChild(el("summary", null, "Key ideas of Lesson " + n + " (take-home message)"));
