@@ -180,9 +180,9 @@
   details.key ul { margin: 10px 0 0 18px; }
   details.key li { margin-bottom: 6px; }
 
-  table.review { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .9em; background: #fff; }
-  table.review th, table.review td { border: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
-  table.review th { background: var(--soft); }
+  .review-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: .93em; }
+  .review-card .obj-text { margin-bottom: 4px; }
+  .review-line { color: var(--muted); margin-bottom: 4px; }
   .tag { display: inline-block; border-radius: 12px; padding: 1px 8px; font-size: .82em; font-weight: 700; }
   .tag.ok { background: var(--ok-bg); color: var(--ok); }
   .tag.ko { background: var(--ko-bg); color: var(--ko); }
@@ -788,7 +788,6 @@ LESSONS[4] = {
     const s = lessonScore(n);
     let html = "";
     if (s.done < s.max) html += "<p class='ex-help' style='margin-top:10px'>You have done " + s.done + " of " + s.max + " exercises. Your review is more useful when everything is done.</p>";
-    html += "<table class='review'><tr><th>I can…</th><th>Before</th><th>My result</th><th>What it tells me</th></tr>";
     L.objectives.forEach(o => {
       let p = 0, m = 0;
       L.exercises.forEach((ex, i) => { if (ex.obj !== o.id) return; const st = state.ex[n + "-" + i]; if (st) { p += st.pts; m += 1; } });
@@ -807,9 +806,11 @@ LESSONS[4] = {
         else if (pct >= 50) msg = "You were careful, and you are getting there. Look at your mistakes.";
         else msg = "You were right to be careful: this point needs more work. Reread the key ideas and the glossary.";
       }
-      html += "<tr><td>" + o.text + "</td><td>" + (c ? CONF[c - 1] : "<em>not rated</em>") + "</td><td>" + tag + "</td><td>" + msg + "</td></tr>";
+      html += "<div class='review-card'><div class='obj-text'>" + o.text + "</div>" +
+        "<div class='review-line'>Before: <strong>" + (c ? CONF[c - 1] : "not rated") + "</strong> · My result: " + tag + "</div>" +
+        "<div>" + msg + "</div></div>";
     });
-    return html + "</table>";
+    return html;
   }
 
   /* ---------- lesson panel ---------- */
@@ -845,7 +846,9 @@ LESSONS[4] = {
         api.show(resp, g); api.lock(); btn.disabled = true; btn.textContent = "Done";
         const full = g.pts >= 0.999, zero = g.pts <= 0.001;
         fb.className = "feedback show " + (full ? "ok" : zero ? "ko" : "mid");
-        let h = "<div class='verdict'>" + (full ? "✓ Correct!" : zero ? "✗ Not quite." : "◐ Partly right (" + fmt(g.pts) + " / 1)") + "</div>";
+        const parts = g.ok || (g.res && g.res.map(x => x > 0));
+        const partial = parts ? parts.filter(Boolean).length + " of " + parts.length + " correct" : fmt(g.pts) + " / 1";
+        let h = "<div class='verdict'>" + (full ? "✓ Correct!" : zero ? "✗ Not quite." : "◐ Partly right: " + partial) + "</div>";
         if (api.note && api.note(g)) h += "<div>" + api.note(g) + "</div>";
         if (ex.why) h += "<div>" + ex.why + "</div>";
         if (ex.mistake && !full) h += "<div class='mistake'>" + ex.mistake + "</div>";
