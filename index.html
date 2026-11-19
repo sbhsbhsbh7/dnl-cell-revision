@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNL SVT Première — The Cell: Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1f2d33;
+    --muted: #5c6b72;
+    --line: #dbe5e8;
+    --card: #ffffff;
+    --soft: #f3f8f9;
+    --accent: #0f6b78;
+    --accent-2: #1f8fa3;
+    --ok: #1e8a4c;
+    --ok-bg: #e6f5ec;
+    --ko: #c0392b;
+    --ko-bg: #fbeaea;
+    --mid: #b7791f;
+    --mid-bg: #fdf3e1;
+    --l1: #0f6b78; --l2: #1f8fa3; --l3: #2c6fae; --l4: #4459a8;
+    --l5: #6a4fa0; --l6: #8e4b8a; --l7: #b5534f;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0c3640 0%, #172c46 100%);
+    min-height: 100vh;
+    padding: 12px;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  header, .panel {
+    background: var(--card);
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  }
+  header { padding: 22px 16px; margin-bottom: 18px; text-align: center; }
+  header h1 { font-size: 1.5em; margin-bottom: 4px; }
+  header .subtitle { color: var(--muted); font-size: .95em; }
+  header .level { color: #8a979c; font-size: .85em; font-style: italic; margin-top: 2px; }
+  .score-display {
+    display: inline-block; margin-top: 14px; padding: 10px 20px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #0b4f5a); color: #fff; font-weight: 700;
+  }
+  .score-display span { display: block; font-size: 1.3em; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 18px; }
+  .tab-btn {
+    border: none; border-radius: 8px; padding: 10px 13px; color: #fff; font-weight: 600;
+    font-size: .82em; cursor: pointer; line-height: 1.2; box-shadow: 0 4px 10px rgba(0,0,0,.2);
+    transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .tab-btn small { display: block; font-weight: 400; opacity: .9; font-size: .9em; }
+  .tab-btn:hover { transform: translateY(-2px); }
+  .tab-btn.active { transform: scale(1.07); box-shadow: 0 8px 22px rgba(0,0,0,.35); outline: 3px solid rgba(255,255,255,.8); }
+  .tab-btn.locked { opacity: .55; }
+  .tab-btn.glossary { background: #3d4b52; }
+  @media (min-width: 768px) { .tab-btn { padding: 13px 18px; font-size: .92em; } }
+
+  .panel { padding: 20px 15px; display: none; animation: fadeIn .4s ease; }
+  .panel.active { display: block; }
+  @media (min-width: 768px) { .panel { padding: 36px; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .panel h2 { font-size: 1.35em; padding-bottom: 10px; border-bottom: 3px solid var(--lc, var(--accent)); margin-bottom: 6px; }
+  .panel .question { color: var(--muted); font-style: italic; margin-bottom: 14px; }
+  .lesson-score { display: inline-block; background: var(--soft); border: 1px solid var(--line); border-radius: 20px; padding: 4px 14px; font-weight: 700; color: var(--lc, var(--accent)); margin-bottom: 8px; }
+
+  .section-title {
+    font-size: 1.1em; font-weight: 700; color: var(--lc, var(--accent));
+    margin: 26px 0 14px; padding-bottom: 7px; border-bottom: 2px solid var(--line);
+  }
+
+  .meta-box { background: var(--soft); border: 1px dashed var(--lc, var(--accent)); border-radius: 10px; padding: 14px 12px; }
+  .meta-box p.intro { margin-bottom: 10px; }
+  .obj { padding: 10px 0; border-top: 1px solid var(--line); }
+  .obj:first-of-type { border-top: none; }
+  .obj-text { font-weight: 600; margin-bottom: 7px; }
+  .scale { display: flex; flex-wrap: wrap; gap: 6px; }
+  .scale button, .chip {
+    border: 1px solid #b9c8cd; background: #fff; border-radius: 18px; padding: 6px 11px;
+    font-size: .85em; cursor: pointer; color: var(--ink);
+  }
+  .scale button.on, .chip.on { background: var(--lc, var(--accent)); border-color: var(--lc, var(--accent)); color: #fff; }
+
+  .exercise {
+    background: var(--soft); padding: 15px 12px; margin-bottom: 14px; border-radius: 10px;
+    border-left: 5px solid var(--lc, var(--accent));
+  }
+  @media (min-width: 768px) { .exercise { padding: 20px; } }
+  .ex-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 10px; }
+  .ex-q { font-weight: 700; }
+  .ex-type { font-size: .72em; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); white-space: nowrap; }
+  .ex-help { color: var(--muted); font-size: .88em; margin: -4px 0 10px; }
+
+  .option {
+    display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 2px solid var(--line);
+    border-radius: 8px; padding: 10px; margin-bottom: 8px; cursor: pointer;
+  }
+  .option input { margin-top: 4px; flex-shrink: 0; }
+  .option.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .option.wrong { border-color: var(--ko); background: var(--ko-bg); }
+
+  .tf-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .statement { background: #fff; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--line); }
+  .pill {
+    border: 2px solid var(--line); background: #fff; border-radius: 8px; padding: 9px 16px;
+    font-weight: 600; cursor: pointer; font-size: .92em; color: var(--ink);
+  }
+  .pill.on { border-color: var(--lc, var(--accent)); background: var(--lc, var(--accent)); color: #fff; }
+  .pill.correct { border-color: var(--ok); background: var(--ok); color: #fff; }
+  .pill.wrong { border-color: var(--ko); background: var(--ko); color: #fff; }
+
+  .fill-text { background: #fff; border-radius: 8px; padding: 12px; border: 1px solid var(--line); line-height: 2.3; }
+  .fill-text input {
+    font: inherit; border: none; border-bottom: 2px solid var(--lc, var(--accent)); background: #f7fbfc;
+    padding: 2px 6px; width: 9.5em; max-width: 100%; border-radius: 4px 4px 0 0;
+  }
+  .fill-text input.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .fill-text input.wrong { border-color: var(--ko); background: var(--ko-bg); }
+  .fix { color: var(--ok); font-weight: 700; font-size: .9em; margin-left: 3px; }
+
+  .order-slots { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .slot {
+    min-height: 44px; border: 2px dashed #9fb4ba; border-radius: 8px; background: #fff;
+    padding: 8px 10px 8px 38px; position: relative; cursor: pointer; font-size: .93em;
+  }
+  .slot::before {
+    content: attr(data-n); position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    width: 21px; height: 21px; border-radius: 50%; background: var(--lc, var(--accent)); color: #fff;
+    font-size: .78em; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .slot.filled { border-style: solid; border-color: var(--lc, var(--accent)); }
+  .slot.filled::after { content: "✕"; position: absolute; right: 9px; top: 8px; color: #8a979c; font-size: .85em; }
+  .slot.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .slot.wrong { border-color: var(--ko); background: var(--ko-bg); }
+  .slot.correct::after, .slot.wrong::after { content: ""; }
+  .arrow { text-align: center; color: #8a979c; font-size: .9em; line-height: 1; }
+  .pool { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card {
+    background: #fff; border: 2px solid var(--lc, var(--accent)); border-radius: 8px; padding: 8px 10px;
+    cursor: pointer; font-size: .9em; flex: 1 1 260px;
+  }
+  .card.used { display: none; }
+
+  .sort-item { background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .sort-item .txt { margin-bottom: 8px; }
+  .sort-item .bins { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sort-item .pill { padding: 6px 11px; font-size: .84em; }
+  .sort-item.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .sort-item.wrong { border-color: var(--ko); background: var(--ko-bg); }
+
+  .match-row { display: grid; grid-template-columns: 1fr; gap: 6px; background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  @media (min-width: 700px) { .match-row { grid-template-columns: minmax(150px, 1fr) 2fr; align-items: center; } }
+  .match-row .left { font-weight: 600; }
+  .match-row select { font: inherit; font-size: .9em; padding: 7px; border-radius: 6px; border: 1px solid #b9c8cd; width: 100%; background: #fff; }
+  .match-row.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .match-row.wrong { border-color: var(--ko); background: var(--ko-bg); }
+
+  .check-btn {
+    margin-top: 12px; border: none; border-radius: 8px; padding: 10px 22px; font-weight: 700; cursor: pointer;
+    color: #fff; background: var(--lc, var(--accent)); font-size: .95em;
+  }
+  .check-btn:disabled { opacity: .45; cursor: default; }
+  .feedback { margin-top: 12px; border-radius: 8px; padding: 10px 12px; display: none; font-size: .93em; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--ok-bg); border-left: 4px solid var(--ok); }
+  .feedback.ko { background: var(--ko-bg); border-left: 4px solid var(--ko); }
+  .feedback.mid { background: var(--mid-bg); border-left: 4px solid var(--mid); }
+  .feedback.warn { background: #eef2f3; border-left: 4px solid #8a979c; }
+  .feedback .verdict { font-weight: 700; margin-bottom: 4px; }
+  .feedback .mistake { margin-top: 6px; font-style: italic; }
+
+  details.key { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+  details.key summary { cursor: pointer; font-weight: 700; color: var(--lc, var(--accent)); }
+  details.key ul { margin: 10px 0 0 18px; }
+  details.key li { margin-bottom: 6px; }
+
+  table.review { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .9em; background: #fff; }
+  table.review th, table.review td { border: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+  table.review th { background: var(--soft); }
+  .tag { display: inline-block; border-radius: 12px; padding: 1px 8px; font-size: .82em; font-weight: 700; }
+  .tag.ok { background: var(--ok-bg); color: var(--ok); }
+  .tag.ko { background: var(--ko-bg); color: var(--ko); }
+  .tag.mid { background: var(--mid-bg); color: var(--mid); }
+  .reset-btn { margin-top: 18px; background: none; border: 1px solid #b9c8cd; color: var(--muted); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: .85em; }
+
+  .locked-box { text-align: center; padding: 30px 10px; }
+  .locked-box .big { font-size: 3em; }
+  .locked-box h2 { border: none; }
+
+  .gloss-search { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid #b9c8cd; border-radius: 8px; margin: 6px 0 14px; }
+  table.gloss { width: 100%; border-collapse: collapse; font-size: .9em; margin-bottom: 18px; }
+  table.gloss th, table.gloss td { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; vertical-align: top; }
+  table.gloss td:first-child { font-weight: 700; white-space: nowrap; }
+  table.gloss td:last-child { color: var(--accent); font-style: italic; }
+  .gloss h3 { margin-top: 10px; color: var(--accent); font-size: 1em; }
+
+  .total-panel { margin-top: 20px; text-align: center; padding: 18px 15px; display: block; }
+  .total-panel .lbl { text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-size: .9em; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>The Cell: from Discovery to Biotechnology</h1>
+    <p class="subtitle" id="subtitle">Review of the lessons</p>
+    <p class="level">DNL SVT Première | M. LOUIS</p>
+    <div class="score-display">Total score <span id="total-score">0 / 0</span></div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+  <main id="panels"></main>
+
+  <div class="panel total-panel">
+    <div class="lbl">Your total score (open lessons)</div>
+    <div class="score-display" style="margin-top:0"><span id="total-score-2">0 / 0</span></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Sequence outline (titles only: no content of locked lessons here) ---------- */
+const LESSON_META = [
+  { n: 1, short: "Hooke", title: "Hooke and the birth of the word “cell”", q: "How does an observation become reliable evidence?" },
+  { n: 2, short: "Cell theory", title: "Building cell theory", q: "How do observations become a general theory?" },
+  { n: 3, short: "HeLa", title: "The HeLa case: the cells that kept dividing", q: "Why can some cells keep dividing, and who controls their use?" },
+  { n: 4, short: "Dolly", title: "Dolly: one cell, a whole sheep?", q: "How did scientists create Dolly, and how did they confirm her origin?" },
+  { n: 5, short: "Cloning", title: "Animal cloning: progress at what cost?", q: "Should we clone animals, and for what purposes?" },
+  { n: 6, short: "Stem cells", title: "Stem cells: hope or hype?", q: "Can stem cells really repair the human body?" },
+  { n: 7, short: "CAR-T cells", title: "A living drug: engineering cells to fight cancer", q: "Can a patient’s own immune cells be turned into a cancer treatment?" }
+];
+const LESSONS = {};
+</script>
+
+
+<script>
+LESSONS[1] = {
+  objectives: [
+    { id: "o1", text: "I can order objects by size and say which ones need a microscope." },
+    { id: "o2", text: "I can explain what Hooke saw in cork, and what it did not prove." },
+    { id: "o3", text: "I can explain why an observation must be confirmed by other observers." }
+  ],
+  exercises: [
+    { type: "sort", obj: "o1", q: "Visible or not? Sort each item.",
+      bins: ["Visible to the naked eye", "Needs a microscope"],
+      items: [["Coffee bean (≈ 8 mm)", 0], ["Pancreas (≈ 15 cm)", 0], ["Red blood cell (≈ 8 µm)", 1], ["E. coli bacterium (≈ 3 µm)", 1], ["Influenza virus (≈ 130 nm)", 1], ["Skin cell (≈ 30 µm)", 1]],
+      why: "The limit of the naked eye is about 0.1 mm (10⁻⁴ m). Everything smaller, like most cells, needs a microscope." },
+    { type: "order", obj: "o1", q: "Put these items in order, from the largest to the smallest.",
+      items: ["Coffee bean", "Human egg", "Red blood cell", "E. coli bacterium", "Influenza virus", "Carbon atom"],
+      why: "Coffee bean ≈ 8 mm → human egg ≈ 130 µm → red blood cell ≈ 8 µm → E. coli ≈ 3 µm → influenza virus ≈ 130 nm → carbon atom ≈ 40 pm." },
+    { type: "mcq", obj: "o1", q: "What is the approximate limit of what we can see with the naked eye?",
+      options: ["About 1 cm", "About 0.1 mm", "About 1 µm", "About 1 nm"], answer: 1,
+      why: "About 0.1 mm = 10⁻⁴ m. A human egg (≈ 130 µm) is right at this limit.",
+      mistake: "Common mistake: thinking that a single cell is always invisible. The human egg is just at the limit." },
+    { type: "fill", obj: "o2", q: "Fill in the gap.",
+      text: "In 1665, Robert Hooke observed a very thin slice of [[cork]] under his microscope and published his drawings in Micrographia.",
+      why: "Cork is the light outer protective layer of a tree, used to make bottle stoppers." },
+    { type: "mcq", obj: "o2", q: "What did Hooke’s cork actually show?",
+      options: ["Living units, each with a nucleus", "A regular pattern of small, empty compartments separated by walls", "That all living things are made of cells", "Tiny living creatures moving in water"], answer: 1,
+      why: "Hooke saw empty, box-like compartments (like a honeycomb) in dead cork. He was only describing what he saw.",
+      mistake: "Common mistake: thinking Hooke proved that all living things are made of cells. He looked at one dead material, with one instrument." },
+    { type: "mcq", obj: "o2", q: "Why did Hooke choose the word “cell”?",
+      options: ["The boxes reminded him of a monk’s small room in a monastery", "It is the Latin word for “living thing”", "The boxes looked like the cells of a battery", "Leeuwenhoek had already used this word"], answer: 0,
+      why: "Historians think the little boxes reminded him of a monk’s room: small, empty and simple, like the many identical rooms of a monastery." },
+    { type: "tf", obj: "o3", statement: "Hooke’s compound microscope could magnify clearly up to ×500.", answer: false,
+      why: "False. It could usefully magnify only ×20 to ×50. Above that, the image was blurred, with strange colours at the edges." },
+    { type: "mcq", obj: "o3", q: "Hooke’s drawing of a flea is much sharper than what his compound microscope could show. Why?",
+      options: ["He invented the details", "He copied a drawing by Leeuwenhoek", "For careful work, he also used a simpler microscope with one very strong lens that he ground himself", "He used an electron microscope"], answer: 2,
+      why: "He showed visitors the impressive compound microscope, but used a single-lens microscope for careful work." },
+    { type: "sort", obj: "o3", q: "Why did the Royal Society doubt Leeuwenhoek? Sort each statement.",
+      bins: ["A real reason", "Not a reason"],
+      items: [["He had no scientific title", 0], ["He wrote in Dutch, not in Latin", 0], ["He refused to explain how he made his lenses", 0], ["His lenses were of poor quality", 1], ["He was already a member of the Royal Society", 1]],
+      why: "He was a self-taught draper (cloth seller) who wrote in Dutch and kept his lens-making method secret. In fact, his lenses were among the best in Europe." },
+    { type: "order", obj: "o3", q: "Put Leeuwenhoek’s story in the correct order.",
+      items: ["1674: he sees living “animalcules” in a drop of pond water", "1676: he writes to the Royal Society about them", "The Society asks its own members to build similar lenses and check his claim", "1677: Hooke observes the animalcules himself and confirms the claim", "1680: Leeuwenhoek is elected a Fellow of the Royal Society"],
+      why: "A doubted claim became an accepted fact once another observer, with his own instrument, reproduced the observation." },
+    { type: "fill", obj: "o3", q: "Fill in the gaps.",
+      text: "Leeuwenhoek called the tiny creatures he saw in pond water “[[animalcules|animalcule]]”. His claim was accepted when [[Hooke|Robert Hooke]] repeated the observation.",
+      why: "Robert Hooke, a member of the Royal Society, confirmed the observation in 1677." },
+    { type: "fill", obj: "o3", q: "Complete the take-home message.",
+      text: "A new microscopic observation becomes more reliable when it is described precisely and [[independently]] reproduced by other observers.",
+      why: "One person with one instrument can be wrong. Independent confirmation is what makes an observation reliable." }
+  ],
+  keyIdeas: [
+    "Hooke (1665) named “cells” the small, empty boxes he saw in dead cork. This showed a structure, not that all living things are made of cells.",
+    "His compound microscope only magnified clearly ×20 to ×50; one instrument used by one person is not enough proof.",
+    "Leeuwenhoek’s “animalcules” (1674–1676) were doubted, then accepted when Hooke reproduced the observation (1677).",
+    "An observation becomes reliable when it is described precisely and independently reproduced by other observers."
+  ],
+  glossary: [
+    ["cork", "the light outer protective layer of a tree", "le liège"],
+    ["cell", "the basic unit of a living thing (Hooke’s word, 1665)", "la cellule"],
+    ["to magnify", "to make something look bigger", "grossir"],
+    ["lens", "a curved piece of glass that bends light", "la lentille"],
+    ["compound microscope", "a microscope with more than one lens", "le microscope composé"],
+    ["to resolve", "to show clearly (fine details)", "résoudre, distinguer"],
+    ["draper", "a cloth seller", "le drapier"],
+    ["to doubt", "to think something may not be true", "douter"],
+    ["to confirm", "to show that something is true", "confirmer"],
+    ["independently", "by other people, separately", "de façon indépendante"],
+    ["naked eye", "the eye without any instrument", "l’œil nu"]
+  ]
+};
+</script>
+
+
+
+<script>
+LESSONS[2] = {
+  objectives: [
+    { id: "o1", text: "I can say what Brown, Schleiden, Schwann and Remak–Virchow each added." },
+    { id: "o2", text: "I can state the three principles of cell theory." },
+    { id: "o3", text: "I can explain what makes cell theory a scientific theory." }
+  ],
+  exercises: [
+    { type: "match", obj: "o1", q: "Match each scientist with what they added.",
+      pairs: [["Brown (1831)", "Found a round structure (the nucleus) in plant cells"], ["Schleiden (1838)", "Found that all plant tissues are made of cells"], ["Schwann (1839)", "Showed that animal tissues are also made of cells"], ["Remak and Virchow (1852–1855)", "Showed that new cells come from the division of existing cells"]],
+      why: "Four stages over about 25 years: nucleus → all plants → animals too → where new cells come from." },
+    { type: "order", obj: "o1", q: "Put the four stages of cell theory in chronological order.",
+      items: ["Brown observes the same round structure in cell after cell of orchids", "Schleiden studies roots, stems, leaves and flowers: all made of cells", "Schwann compares animal and plant tissues", "Remak observes dividing cells; Virchow sums up: “Omnis cellula e cellula”"],
+      why: "1831 → 1838 → 1839 → 1852–1855. Each scientist built on, or corrected, the work of the others." },
+    { type: "fill", obj: "o1", q: "Fill in the gap.",
+      text: "Brown called the round structure inside each plant cell an “areola”. Today, we call it the [[nucleus]].",
+      why: "This is the one new structural feature Brown added to Hooke’s empty boxes." },
+    { type: "mcq", obj: "o1", q: "Why is Brown’s observation stronger than a single observation?",
+      options: ["He used the first electron microscope", "He saw the same structure in cell after cell, one in each cell, so it was unlikely to be an accident", "He looked at animal and plant cells", "The Royal Society confirmed it the next day"], answer: 1,
+      why: "“As only one areola belongs to each cell, this phaenomenon is not so likely to depend on any accidental circumstance.”",
+      mistake: "But he had found it in very few plants with a very different kind of leaf, so he could not say that ALL plant cells have a nucleus." },
+    { type: "mcq", obj: "o1", q: "Schwann was looking for the same structure in animal cells as in plant cells. Which one?",
+      options: ["The cell wall", "The nucleus", "The chloroplast", "The vacuole"], answer: 1,
+      why: "After hearing Schleiden describe the nucleus in plant cells, Schwann looked for it in cartilage, nerve and notochord cells." },
+    { type: "mcq", obj: "o1", q: "What did Schleiden and Schwann first believe about how new cells appear?",
+      options: ["New cells come from the division of an existing cell", "New cells crystallise out of a formless living fluid, like a crystal in a solution", "New cells come from the nucleus only", "New cells come from food"], answer: 1,
+      why: "Remak’s observations of dividing cells (chicken embryo blood cells, frog eggs) corrected this idea.",
+      mistake: "Common mistake: thinking Schleiden and Schwann had found the third principle. It was Remak and Virchow, who corrected them." },
+    { type: "fill", obj: "o2", q: "Write the three principles of cell theory.",
+      text: "1. All living things are made of [[cells|cell]].<br>2. The cell is the basic [[unit]] of every organism.<br>3. Every cell comes from a [[pre-existing|preexisting|pre existing|existing]] cell.",
+      why: "You will need these three principles for the whole sequence." },
+    { type: "fill", obj: "o2", q: "Complete Virchow’s famous Latin phrase (1855).",
+      text: "“Omnis cellula e [[cellula]]”: every cell comes from a cell.",
+      why: "The phrase is so memorable that we usually remember Virchow, not Remak, who made the key observations." },
+    { type: "mcq", obj: "o2", q: "Which everyday process in your body needs new cells to come from pre-existing cells?",
+      options: ["A cut healing", "Breathing in oxygen", "Feeling cold", "Seeing colours"], answer: 0,
+      why: "When a cut heals, existing skin cells divide to replace the lost cells." },
+    { type: "tf", obj: "o3", statement: "Cell theory was discovered by one scientist, in one experiment.", answer: false,
+      why: "False. It was built over about 25 years (1831–1855) by five scientists who read, met and corrected each other." },
+    { type: "tf", obj: "o3", statement: "Like any scientific theory, cell theory can still be revised if strong new evidence requires it.", answer: true,
+      why: "True. A theory is a broad explanation built on converging evidence, but it stays open to new observations." },
+    { type: "mcq", obj: "o3", q: "What makes cell theory a scientific theory, not just an observation?",
+      options: ["It was written in Latin", "It is a general explanation supported by converging evidence from plants, animals and dividing cells", "It was voted by the Royal Society", "Nobody can ever question it"], answer: 1,
+      why: "Many independent observations (plants, animals, cell division) point to the same general conclusion." }
+  ],
+  keyIdeas: [
+    "Cell theory: (1) all living things are made of cells; (2) the cell is the basic unit of every organism; (3) every cell comes from a pre-existing cell.",
+    "Brown found the nucleus in plant cells (1831); Schleiden generalised cells to all plant tissues (1838); Schwann extended it to animals (1839).",
+    "Remak observed dividing cells and Virchow summed up: “Omnis cellula e cellula” (1855), correcting Schleiden and Schwann’s idea that cells crystallise from a fluid.",
+    "A scientific theory is built on converging evidence and can still be revised."
+  ],
+  glossary: [
+    ["nucleus", "the round structure inside a cell (Brown’s “areola”)", "le noyau"],
+    ["tissue", "a group of similar cells working together", "le tissu"],
+    ["to divide", "to split into two cells", "se diviser"],
+    ["pre-existing", "already there beforehand", "préexistant"],
+    ["evidence", "facts or observations that support an idea", "les preuves, les données"],
+    ["to build on", "to use someone’s work as a starting point", "s’appuyer sur"],
+    ["theory", "a broad explanation supported by evidence", "la théorie"],
+    ["to refine", "to improve something by small changes", "affiner"],
+    ["analogous", "similar, comparable", "analogue"],
+    ["pathologist", "a doctor who studies disease", "le pathologiste"]
+  ]
+};
+</script>
+
+
+
+<script>
+LESSONS[3] = {
+  objectives: [
+    { id: "o1", text: "I can explain why normal cells stop dividing (signals, telomeres, senescence)." },
+    { id: "o2", text: "I can explain why HeLa is an immortal cell line, and what it made possible." },
+    { id: "o3", text: "I can explain the questions of consent and genetic privacy raised by HeLa." }
+  ],
+  exercises: [
+    { type: "mcq", obj: "o1", q: "In culture, what happens to normal human cells after about 50 divisions?",
+      options: ["They divide faster and faster", "They stop dividing but stay alive: this is senescence", "They all die immediately", "They become cancer cells"], answer: 1,
+      why: "This is the Hayflick limit (1961). Senescent cells are alive but no longer divide.",
+      mistake: "Common mistake: senescence is not cell death. Short telomeres make the cell stop dividing." },
+    { type: "fill", obj: "o1", q: "Fill in the gaps.",
+      text: "At the ends of chromosomes, protective DNA called [[telomeres|telomere]] gets shorter at each division. In healthy tissues, [[signals|signal]] tell cells when to stop dividing or when to die.",
+      why: "Two limits: stop/die signals, and telomeres that shorten." },
+    { type: "sort", obj: "o2", q: "Normal cell or HeLa cell? Sort each statement.",
+      bins: ["Normal human cell", "HeLa cell"],
+      items: [["Stops dividing after about 50 divisions", 0], ["Its telomeres get shorter at each division", 0], ["Obeys the signals to stop dividing or to die", 0], ["Ignores the signals to stop dividing or to die", 1], ["Telomerase keeps its telomeres long", 1], ["Its cell line has been proliferating since 1951", 1]],
+      why: "HeLa cells have lost BOTH limits: they ignore stop/die signals, and telomerase keeps their telomeres long." },
+    { type: "order", obj: "o2", q: "Put the steps in order: how did Henrietta’s cells become immortal?",
+      items: ["The virus HPV18 infects cells of the cervix", "Part of the viral DNA is inserted into the cells’ own DNA", "The cells keep producing viral proteins", "The cells ignore stop/die signals, and telomerase keeps telomeres long", "The cells keep proliferating: an immortal cell line"],
+      why: "Henrietta’s cancer was linked to HPV18. Together with other genetic changes, this removed both limits on division." },
+    { type: "fill", obj: "o2", q: "Fill in the gap.",
+      text: "Cells kept alive outside the body, in a nutrient-rich, controlled environment, are called a cell [[culture]].",
+      why: "A cell line is a population of cells descended from one original sample and maintained in culture." },
+    { type: "mcq", obj: "o2", q: "What does “immortal” mean in “immortal cell line”?",
+      options: ["Each HeLa cell lives forever", "The cell line can keep proliferating for a very long time; individual cells can still die", "The cells cannot be destroyed by any treatment", "Henrietta Lacks is still alive"], answer: 1,
+      why: "“Immortal” describes the whole cell line, not each cell.",
+      mistake: "Common mistake: thinking that one HeLa cell never dies." },
+    { type: "match", obj: "o2", q: "What did HeLa cells make possible? Match each date with the discovery.",
+      pairs: [["1952–1954", "Testing the new polio vaccine"], ["1980s", "Showing that a virus (HPV) can cause cervical cancer, leading to HPV vaccines"], ["1989", "First detection of telomerase activity in human cells"], ["Today", "More than 110,000 scientific publications"]],
+      why: "Many identical cells, easy to share between laboratories: this is why HeLa became so useful." },
+    { type: "tf", obj: "o2", statement: "Every HeLa cell used today descends from the cells taken from Henrietta Lacks in 1951.", answer: true,
+      why: "True. This is Virchow’s principle in action: every cell comes from a pre-existing cell." },
+    { type: "mcq", obj: "o3", q: "What was the main ethical problem in 1951?",
+      options: ["The cells were taken during a biopsy and given to research without Henrietta’s knowledge or consent", "Henrietta sold her cells", "The cells were used only in France", "The doctors refused to treat her"], answer: 0,
+      why: "Henrietta Lacks, an African American woman treated in a segregated hospital, never knew that her cells were used." },
+    { type: "mcq", obj: "o3", q: "Can the HeLa genome reveal information about Henrietta’s family?",
+      options: ["No, it is a cancer genome, so it has nothing to do with her family", "Yes, partly: it is altered by cancer, but it still contains alleles inherited from Henrietta, which her relatives partly share", "Yes, it is exactly the same as her children’s genome", "No, because the genome is anonymous"], answer: 1,
+      why: "Relatives share part of their DNA, so the data can give clues about her children and grandchildren (for example some disease risks).",
+      mistake: "Common mistake: “so altered by cancer that it is not Henrietta’s genome any more”. Inherited alleles are still there." },
+    { type: "mcq", obj: "o3", q: "What was finally decided in August 2013 about the HeLa genome data?",
+      options: ["Open access: anyone can download it", "Controlled access: researchers apply, and a group including Lacks family members reviews the requests", "The data were destroyed", "Only French researchers can use it"], answer: 1,
+      why: "This is option B (controlled access), agreed between the NIH and the Lacks family." },
+    { type: "fill", obj: "o3", q: "Fill in the gap.",
+      text: "An agreement given after clear information is called informed [[consent]].",
+      why: "Today, informed consent is normally required for identifiable samples collected for research." }
+  ],
+  keyIdeas: [
+    "Normal cells do not divide forever: signals tell them when to stop or die, and telomeres shorten at each division. After about 50 divisions, they stop (senescence).",
+    "Because of HPV18 and other genetic changes, HeLa cells ignore these signals, and telomerase keeps their telomeres long: HeLa is an immortal cell line.",
+    "HeLa made major discoveries possible: polio vaccine testing, HPV and cervical cancer, telomerase.",
+    "The cells were taken without consent. Their genome contains alleles shared with Henrietta’s family: since 2013, access is controlled, with the family involved."
+  ],
+  glossary: [
+    ["proliferation", "repeated cell division", "la prolifération"],
+    ["tumour", "a mass of abnormal cells", "la tumeur"],
+    ["telomere", "protective DNA at the ends of chromosomes", "le télomère"],
+    ["senescence", "alive but no longer dividing", "la sénescence"],
+    ["cell culture", "cells kept alive outside the body", "la culture cellulaire"],
+    ["cell line", "cells descended from one original sample", "la lignée cellulaire"],
+    ["biopsy", "a small sample of tissue", "la biopsie"],
+    ["informed consent", "agreement after clear information", "le consentement éclairé"],
+    ["genome", "all the DNA of a cell", "le génome"],
+    ["allele", "a version of a gene", "l’allèle"],
+    ["relatives", "members of the same family", "les proches, la famille"]
+  ]
+};
+</script>
+
+
+
+<script>
+LESSONS[4] = {
+  objectives: [
+    { id: "o1", text: "I can describe the steps of somatic cell nuclear transfer and the roles of the three sheep." },
+    { id: "o2", text: "I can tell a clue from strong evidence about Dolly’s origin." },
+    { id: "o3", text: "I can explain why Dolly was a step forward, and what nuclear reprogramming means." }
+  ],
+  exercises: [
+    { type: "order", obj: "o1", q: "Put the steps of somatic cell nuclear transfer (SCNT) in order.",
+      items: ["The nucleus of an unfertilised egg cell is removed (enucleation)", "An adult udder cell is fused with this egg cell, using an electric pulse", "The new cell divides and forms a young embryo", "The embryo is placed in the uterus of a surrogate ewe", "Dolly is born on 5 July 1996"],
+      why: "The electric pulse makes the two membranes fuse and triggers the first divisions, as fertilisation normally does." },
+    { type: "match", obj: "o1", q: "Match each sheep with its role.",
+      pairs: [["Finn Dorset ewe (white face)", "Gave the adult udder cell and its nucleus"], ["Scottish Blackface ewe (egg donor)", "Gave the egg cell: its nucleus was removed, its cytoplasm was kept"], ["Scottish Blackface ewe (surrogate)", "Carried the embryo until birth"]],
+      why: "Three roles: nucleus donor, egg donor, surrogate mother." },
+    { type: "tf", obj: "o1", statement: "The surrogate mother gave Dolly her nuclear DNA.", answer: false,
+      why: "False. The surrogate mother only carried the embryo. Dolly’s nuclear DNA came from the Finn Dorset donor cell.",
+      mistake: "Common mistake: confusing carrying an embryo with passing on genes." },
+    { type: "fill", obj: "o1", q: "Fill in the gaps.",
+      text: "Removing the nucleus of a cell is called [[enucleation]]. Any cell of the body except egg cells and sperm cells is a [[somatic]] cell.",
+      why: "Hence the name: somatic cell nuclear transfer (SCNT)." },
+    { type: "mcq", obj: "o1", q: "Why was the lamb called Dolly?",
+      options: ["After the first scientist’s daughter", "The cell came from a mammary gland, so the team named her after the singer Dolly Parton", "Dolly means “clone” in Scottish", "After the name of the farm"], answer: 1,
+      why: "The donor cell came from an udder (mammary gland), and the team named the lamb after the American country singer." },
+    { type: "sort", obj: "o2", q: "Only a clue, or strong evidence? Sort each fact.",
+      bins: ["Only a clue", "Strong evidence"],
+      items: [["Dolly has a white face, like Finn Dorset sheep", 0], ["The egg donor and the surrogate have black faces, unlike Dolly", 0], ["DNA analyses in 1998 found that Dolly’s nuclear DNA matched the donor cells", 1], ["One of these 1998 DNA studies was done by an independent team", 1]],
+      why: "A clue makes an idea likely, but other explanations remain possible. Strong evidence comes from tests that check the idea directly, especially when different teams find the same result." },
+    { type: "mcq", obj: "o2", q: "Why is Dolly’s white face only a clue?",
+      options: ["Because face colour is a breed feature, not a direct test of her DNA: other explanations remain possible", "Because white sheep do not exist", "Because the photo was black and white", "Because the face colour can change every year"], answer: 0,
+      why: "Only DNA analyses test directly where her nuclear DNA came from." },
+    { type: "mcq", obj: "o2", q: "Why did it matter that one of the 1998 DNA studies was done by an independent team?",
+      options: ["It was cheaper", "If a different team, with different methods, finds the same result, it is much less likely to be a mistake or a bias of the first team", "The Roslin team did not know how to analyse DNA", "Independent teams are always right"], answer: 1,
+      why: "Just like Hooke confirming Leeuwenhoek’s animalcules: independent confirmation makes a result reliable." },
+    { type: "match", obj: "o3", q: "Three steps in the history of cloning: match each experiment with its donor cell.",
+      pairs: [["1962, frogs (Gurdon)", "A specialised cell from a tadpole’s intestine"], ["1984, sheep (Willadsen)", "A not-yet-specialised cell from an 8-cell embryo"], ["1996, Dolly (Wilmut and Campbell)", "A specialised cell from an adult sheep’s udder"]],
+      why: "Dolly was the first mammal cloned from an adult somatic cell." },
+    { type: "mcq", obj: "o3", q: "What does nuclear reprogramming change in the adult nucleus?",
+      options: ["The DNA sequence is reset to zero", "Which genes are active: the egg cytoplasm switches genes back on so that development can start", "The number of chromosomes", "Nothing: the nucleus stays exactly as it was"], answer: 1,
+      why: "A specialised cell still contains all the genetic information, but many genes are switched off. The egg cytoplasm changes which genes are active.",
+      mistake: "Common mistake: saying the DNA is “reset”. It is gene activity that changes, not the DNA sequence." },
+    { type: "fill", obj: "o3", q: "Fill in the gap with a number.",
+      text: "In Dolly’s experiment, 277 cells were fused, 29 embryos were transferred, and only [[1|one]] lamb was born.",
+      why: "Cloning often fails: problems can occur during reprogramming and at other stages of development." },
+    { type: "tf", obj: "o3", statement: "Dolly showed that the nucleus of a specialised cell from an adult mammal can direct the development of a whole new animal.", answer: true,
+      why: "True. Before Dolly, many scientists thought that this was impossible in mammals." }
+  ],
+  keyIdeas: [
+    "SCNT: the nucleus of an unfertilised egg cell is removed; the egg is fused with an adult udder cell using an electric pulse; the embryo develops in a surrogate ewe.",
+    "Three roles: a Finn Dorset ewe gave the nucleus; a Scottish Blackface ewe gave the egg cell (cytoplasm kept); another Scottish Blackface ewe carried the embryo.",
+    "Dolly’s white face was only a clue; DNA analyses published in 1998, one by an independent team, confirmed that her nuclear DNA matched the donor cells.",
+    "The egg cytoplasm reprogrammes the nucleus by changing which genes are active, not the DNA sequence. Cloning often fails: 1 lamb from 277 fused cells.",
+    "Gurdon (1962) cloned frogs from specialised tadpole cells; Willadsen (1984) sheep from embryo cells; Dolly (1996) was the first mammal cloned from an adult somatic cell."
+  ],
+  glossary: [
+    ["udder", "the organ of a female sheep or cow that produces milk", "le pis"],
+    ["ewe", "a female sheep", "la brebis"],
+    ["breed", "a type of animal within a species", "la race"],
+    ["mammary gland", "an organ that produces milk", "la glande mammaire"],
+    ["somatic cell", "any body cell except egg cells and sperm cells", "la cellule somatique"],
+    ["enucleation", "removing the nucleus of a cell", "l’énucléation"],
+    ["to fuse", "to join two cells into one", "fusionner"],
+    ["unfertilised", "not joined with a sperm cell", "non fécondé"],
+    ["surrogate mother", "a female who carries an embryo that is not genetically hers", "la mère porteuse"],
+    ["specialised / differentiated", "adapted to do one particular job in the body", "spécialisé / différencié"],
+    ["clue", "a fact that makes an idea likely", "l’indice"],
+    ["evidence", "data from tests that check an idea directly", "la preuve, les données"],
+    ["tadpole", "the young form of a frog", "le têtard"]
+  ]
+};
+</script>
+
+
+
+
+
+<script>
+(function () {
+  const STORE_KEY = "dnl1-cell-review-v1";
+  const CONF = ["Not yet", "A little", "Quite sure", "Very sure"];
+
+  /* ---------- storage (optional: the page works without it) ---------- */
+  let state = { ex: {}, before: {}, after: {}, plan: {}, tab: null };
+  try { const raw = localStorage.getItem(STORE_KEY); if (raw) state = Object.assign(state, JSON.parse(raw)); } catch (e) {}
+  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---------- helpers ---------- */
+  function el(tag, attrs, html) {
+    const e = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === "class") e.className = attrs[k];
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    }
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function shuffle(a) {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+    return b;
+  }
+  function shuffledIdx(n) {
+    let idx = shuffle([...Array(n).keys()]);
+    if (n > 2 && idx.every((v, i) => v === i)) idx = idx.reverse();
+    return idx;
+  }
+  function norm(s) {
+    return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[’‘`]/g, "'").replace(/izes?\b/g, m => m.replace("z", "s"))
+      .replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function lev(a, b) {
+    const m = a.length, n = b.length, d = [];
+    for (let i = 0; i <= m; i++) { d[i] = [i]; }
+    for (let j = 0; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+  /* returns 2 = exact, 1 = accepted with a spelling slip, 0 = wrong */
+  function matchWord(given, accepted) {
+    const g = norm(given);
+    if (!g) return 0;
+    for (const a of accepted) if (norm(a) === g) return 2;
+    for (const a of accepted) { const na = norm(a); if (na.length >= 5 && lev(na, g) <= 1) return 1; }
+    return 0;
+  }
+  const fmt = x => (Math.round(x * 10) / 10).toString();
+  const TYPE_LABEL = { mcq: "Multiple choice", tf: "True or false", fill: "Fill in", order: "Put in order", sort: "Sort", match: "Match" };
+
+  /* ---------- exercise renderers: each returns { getResp, setResp, grade, show, lock } ---------- */
+  const R = {};
+
+  R.mcq = function (ex, body, key) {
+    const order = shuffledIdx(ex.options.length);
+    const labels = [];
+    order.forEach(i => {
+      const lab = el("label", { class: "option" });
+      const inp = el("input", { type: "radio", name: key, value: i });
+      lab.appendChild(inp); lab.appendChild(el("span", null, ex.options[i]));
+      body.appendChild(lab); labels[i] = { lab, inp };
+    });
+    return {
+      getResp: () => { const c = labels.findIndex(x => x && x.inp.checked); return c < 0 ? null : c; },
+      setResp: r => { if (labels[r]) labels[r].inp.checked = true; },
+      grade: r => ({ pts: r === ex.answer ? 1 : 0 }),
+      show: r => { labels[ex.answer].lab.classList.add("correct"); if (r !== ex.answer && labels[r]) labels[r].lab.classList.add("wrong"); },
+      lock: () => labels.forEach(x => x.inp.disabled = true)
+    };
+  };
+
+  R.tf = function (ex, body) {
+    body.appendChild(el("div", { class: "statement" }, ex.statement));
+    const row = el("div", { class: "tf-row" });
+    let choice = null;
+    const btns = [true, false].map(v => {
+      const b = el("button", { class: "pill", type: "button" }, v ? "True" : "False");
+      b.addEventListener("click", () => { if (b.disabled) return; choice = v; btns.forEach(x => x.classList.toggle("on", x === b)); });
+      row.appendChild(b); return b;
+    });
+    body.appendChild(row);
+    return {
+      getResp: () => choice,
+      setResp: r => { choice = r; btns.forEach((b, i) => b.classList.toggle("on", (i === 0) === r)); },
+      grade: r => ({ pts: r === ex.answer ? 1 : 0 }),
+      show: r => btns.forEach((b, i) => {
+        const v = i === 0; b.classList.remove("on");
+        if (v === ex.answer) b.classList.add("correct"); else if (v === r) b.classList.add("wrong");
+      }),
+      lock: () => btns.forEach(b => b.disabled = true)
+    };
+  };
+
+  R.fill = function (ex, body) {
+    const box = el("div", { class: "fill-text" });
+    const answers = [];
+    box.innerHTML = ex.text.replace(/\[\[(.+?)\]\]/g, (m, alts) => {
+      answers.push(alts.split("|"));
+      return '<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-i="' + (answers.length - 1) + '">';
+    });
+    body.appendChild(box);
+    const inputs = [...box.querySelectorAll("input")];
+    return {
+      getResp: () => { const v = inputs.map(i => i.value.trim()); return v.some(x => !x) ? null : v; },
+      setResp: r => inputs.forEach((inp, i) => inp.value = r[i] || ""),
+      grade: r => {
+        const res = r.map((v, i) => matchWord(v, answers[i]));
+        return { pts: res.filter(x => x > 0).length / res.length, res };
+      },
+      show: (r, g) => inputs.forEach((inp, i) => {
+        const ok = g.res[i] > 0;
+        inp.classList.add(ok ? "correct" : "wrong");
+        if (!ok || g.res[i] === 1) inp.insertAdjacentHTML("afterend", '<span class="fix">→ ' + answers[i][0] + "</span>");
+      }),
+      lock: () => inputs.forEach(i => i.disabled = true),
+      note: g => g.res.includes(1) ? "Accepted, but check the spelling." : ""
+    };
+  };
+
+  R.order = function (ex, body) {
+    body.appendChild(el("p", { class: "ex-help" }, "Tap the cards in the right order. Tap a filled box to remove it."));
+    const slotsBox = el("div", { class: "order-slots" });
+    const n = ex.items.length;
+    const slots = [];
+    let placed = Array(n).fill(null);
+    for (let k = 0; k < n; k++) {
+      if (k) slotsBox.appendChild(el("div", { class: "arrow" }, "↓"));
+      const s = el("div", { class: "slot", "data-n": k + 1 });
+      s.addEventListener("click", () => { if (locked || placed[k] == null) return; placed[k] = null; render(); });
+      slotsBox.appendChild(s); slots.push(s);
+    }
+    const pool = el("div", { class: "pool" });
+    const cards = [];
+    shuffledIdx(n).forEach(i => {
+      const c = el("div", { class: "card" }, ex.items[i]);
+      c.addEventListener("click", () => {
+        if (locked) return;
+        const free = placed.indexOf(null); if (free < 0) return;
+        placed[free] = i; render();
+      });
+      pool.appendChild(c); cards[i] = c;
+    });
+    body.appendChild(slotsBox); body.appendChild(pool);
+    let locked = false;
+    function render() {
+      slots.forEach((s, k) => { s.innerHTML = placed[k] == null ? "" : ex.items[placed[k]]; s.classList.toggle("filled", placed[k] != null); });
+      cards.forEach((c, i) => c.classList.toggle("used", placed.includes(i)));
+    }
+    return {
+      getResp: () => placed.includes(null) ? null : placed.slice(),
+      setResp: r => { placed = r.slice(); render(); },
+      grade: r => { const ok = r.map((v, k) => v === k); return { pts: ok.filter(Boolean).length / n, ok }; },
+      show: (r, g) => {
+        slots.forEach((s, k) => s.classList.add(g.ok[k] ? "correct" : "wrong"));
+        if (g.ok.includes(false)) {
+          body.appendChild(el("div", { class: "statement", style: "margin-top:10px" },
+            "<strong>Correct order:</strong><ol style='margin:6px 0 0 20px'>" + ex.items.map(t => "<li>" + t + "</li>").join("") + "</ol>"));
+        }
+      },
+      lock: () => { locked = true; pool.style.display = "none"; }
+    };
+  };
+
+  R.sort = function (ex, body) {
+    const order = shuffledIdx(ex.items.length);
+    const choice = Array(ex.items.length).fill(null);
+    const rows = [];
+    order.forEach(i => {
+      const row = el("div", { class: "sort-item" });
+      row.appendChild(el("div", { class: "txt" }, ex.items[i][0]));
+      const bins = el("div", { class: "bins" });
+      const btns = ex.bins.map((b, bi) => {
+        const btn = el("button", { class: "pill", type: "button" }, b);
+        btn.addEventListener("click", () => { if (btn.disabled) return; choice[i] = bi; btns.forEach(x => x.classList.toggle("on", x === btn)); });
+        bins.appendChild(btn); return btn;
+      });
+      row.appendChild(bins); body.appendChild(row);
+      rows[i] = { row, btns };
+    });
+    return {
+      getResp: () => choice.includes(null) ? null : choice.slice(),
+      setResp: r => r.forEach((bi, i) => { choice[i] = bi; rows[i].btns.forEach((b, k) => b.classList.toggle("on", k === bi)); }),
+      grade: r => { const ok = r.map((bi, i) => bi === ex.items[i][1]); return { pts: ok.filter(Boolean).length / ok.length, ok }; },
+      show: (r, g) => rows.forEach((x, i) => {
+        x.row.classList.add(g.ok[i] ? "correct" : "wrong");
+        x.btns.forEach((b, k) => { b.classList.remove("on"); if (k === ex.items[i][1]) b.classList.add("correct"); else if (k === r[i]) b.classList.add("wrong"); });
+      }),
+      lock: () => rows.forEach(x => x.btns.forEach(b => b.disabled = true))
+    };
+  };
+
+  R.match = function (ex, body) {
+    const rightOrder = shuffledIdx(ex.pairs.length);
+    const rows = [];
+    shuffledIdx(ex.pairs.length).forEach(i => {
+      const row = el("div", { class: "match-row" });
+      row.appendChild(el("div", { class: "left" }, ex.pairs[i][0]));
+      const sel = el("select");
+      sel.appendChild(el("option", { value: "" }, "— choose —"));
+      rightOrder.forEach(j => sel.appendChild(el("option", { value: j }, ex.pairs[j][1])));
+      row.appendChild(sel); body.appendChild(row);
+      rows[i] = { row, sel };
+    });
+    return {
+      getResp: () => { const v = rows.map(x => x.sel.value); return v.includes("") ? null : v.map(Number); },
+      setResp: r => r.forEach((j, i) => rows[i].sel.value = j),
+      grade: r => { const ok = r.map((j, i) => j === i); return { pts: ok.filter(Boolean).length / ok.length, ok }; },
+      show: (r, g) => rows.forEach((x, i) => {
+        x.row.classList.add(g.ok[i] ? "correct" : "wrong");
+        if (!g.ok[i]) x.row.appendChild(el("div", { class: "fix", style: "grid-column:1/-1" }, "→ " + ex.pairs[i][1]));
+      }),
+      lock: () => rows.forEach(x => x.sel.disabled = true)
+    };
+  };
+
+  /* ---------- scores ---------- */
+  function lessonScore(n) {
+    const L = LESSONS[n]; let pts = 0;
+    L.exercises.forEach((ex, i) => { const s = state.ex[n + "-" + i]; if (s) pts += s.pts; });
+    return { pts, max: L.exercises.length, done: L.exercises.filter((ex, i) => state.ex[n + "-" + i]).length };
+  }
+  function updateScores() {
+    let pts = 0, max = 0;
+    Object.keys(LESSONS).forEach(n => {
+      const s = lessonScore(n); pts += s.pts; max += s.max;
+      const tag = document.getElementById("ls-" + n);
+      if (tag) tag.textContent = "Lesson score: " + fmt(s.pts) + " / " + s.max + "  (" + s.done + " / " + s.max + " done)";
+    });
+    document.getElementById("total-score").textContent = fmt(pts) + " / " + max;
+    document.getElementById("total-score-2").textContent = fmt(pts) + " / " + max;
+  }
+
+  /* ---------- metacognition ---------- */
+  function ratingBlock(n, which) {
+    const L = LESSONS[n]; const box = el("div");
+    L.objectives.forEach(o => {
+      const row = el("div", { class: "obj" });
+      row.appendChild(el("div", { class: "obj-text" }, o.text));
+      const scale = el("div", { class: "scale" });
+      const store = state[which][n] = state[which][n] || {};
+      CONF.forEach((label, k) => {
+        const b = el("button", { type: "button", class: store[o.id] === k + 1 ? "on" : "" }, label);
+        b.addEventListener("click", () => {
+          store[o.id] = k + 1; save();
+          [...scale.children].forEach(x => x.classList.toggle("on", x === b));
+        });
+        scale.appendChild(b);
+      });
+      row.appendChild(scale); box.appendChild(row);
+    });
+    return box;
+  }
+
+  function reviewTable(n) {
+    const L = LESSONS[n];
+    const before = state.before[n] || {};
+    const s = lessonScore(n);
+    let html = "";
+    if (s.done < s.max) html += "<p class='ex-help' style='margin-top:10px'>You have done " + s.done + " of " + s.max + " exercises. Your review is more useful when everything is done.</p>";
+    html += "<table class='review'><tr><th>I can…</th><th>Before</th><th>My result</th><th>What it tells me</th></tr>";
+    L.objectives.forEach(o => {
+      let p = 0, m = 0;
+      L.exercises.forEach((ex, i) => { if (ex.obj !== o.id) return; const st = state.ex[n + "-" + i]; if (st) { p += st.pts; m += 1; } });
+      const pct = m ? Math.round(100 * p / m) : null;
+      const c = before[o.id];
+      let tag, msg;
+      if (pct == null) { tag = "<span class='tag mid'>—</span>"; msg = "No exercise done yet on this point."; }
+      else {
+        const cls = pct >= 80 ? "ok" : pct >= 50 ? "mid" : "ko";
+        tag = "<span class='tag " + cls + "'>" + pct + " %</span>";
+        if (!c) msg = pct >= 80 ? "Well done." : "Look at your mistakes and reread the key ideas.";
+        else if (c >= 3 && pct < 50) msg = "<strong>Watch out:</strong> you felt sure, but your answers show gaps. Reread the key ideas, then try again.";
+        else if (c >= 3 && pct < 80) msg = "You felt sure: you are nearly there. Check the corrections of your mistakes.";
+        else if (c >= 3) msg = "You felt sure, and you were right. Well done!";
+        else if (pct >= 80) msg = "<strong>Good news:</strong> you know more than you thought. Trust yourself!";
+        else if (pct >= 50) msg = "You were careful, and you are getting there. Look at your mistakes.";
+        else msg = "You were right to be careful: this point needs more work. Reread the key ideas and the glossary.";
+      }
+      html += "<tr><td>" + o.text + "</td><td>" + (c ? CONF[c - 1] : "<em>not rated</em>") + "</td><td>" + tag + "</td><td>" + msg + "</td></tr>";
+    });
+    return html + "</table>";
+  }
+
+  /* ---------- lesson panel ---------- */
+  function buildLesson(meta, panel) {
+    const n = meta.n, L = LESSONS[n];
+    panel.style.setProperty("--lc", "var(--l" + n + ")");
+    panel.appendChild(el("h2", null, "Lesson " + n + ": " + meta.title));
+    panel.appendChild(el("p", { class: "question" }, meta.q));
+    panel.appendChild(el("div", { class: "lesson-score", id: "ls-" + n }));
+
+    panel.appendChild(el("div", { class: "section-title" }, "① Before you start: how sure do you feel?"));
+    const before = el("div", { class: "meta-box" });
+    before.appendChild(el("p", { class: "intro" }, "Be honest: there is no wrong answer here. You will compare with your results at the end."));
+    before.appendChild(ratingBlock(n, "before"));
+    panel.appendChild(before);
+
+    panel.appendChild(el("div", { class: "section-title" }, "② Exercises"));
+    L.exercises.forEach((ex, i) => {
+      const key = "l" + n + "e" + i, skey = n + "-" + i;
+      const box = el("div", { class: "exercise" });
+      const head = el("div", { class: "ex-head" });
+      head.appendChild(el("div", { class: "ex-q" }, (i + 1) + ". " + (ex.q || "True or false?")));
+      head.appendChild(el("div", { class: "ex-type" }, TYPE_LABEL[ex.type]));
+      box.appendChild(head);
+      const body = el("div"); box.appendChild(body);
+      const api = R[ex.type](ex, body, key);
+      const btn = el("button", { class: "check-btn", type: "button" }, "Check");
+      const fb = el("div", { class: "feedback" });
+      box.appendChild(btn); box.appendChild(fb);
+
+      function reveal(resp) {
+        const g = api.grade(resp);
+        api.show(resp, g); api.lock(); btn.disabled = true; btn.textContent = "Done";
+        const full = g.pts >= 0.999, zero = g.pts <= 0.001;
+        fb.className = "feedback show " + (full ? "ok" : zero ? "ko" : "mid");
+        let h = "<div class='verdict'>" + (full ? "✓ Correct!" : zero ? "✗ Not quite." : "◐ Partly right (" + fmt(g.pts) + " / 1)") + "</div>";
+        if (api.note && api.note(g)) h += "<div>" + api.note(g) + "</div>";
+        if (ex.why) h += "<div>" + ex.why + "</div>";
+        if (ex.mistake && !full) h += "<div class='mistake'>" + ex.mistake + "</div>";
+        fb.innerHTML = h;
+        return g;
+      }
+      btn.addEventListener("click", () => {
+        const resp = api.getResp();
+        if (resp == null) { fb.className = "feedback show warn"; fb.innerHTML = "Answer every part first."; return; }
+        const g = reveal(resp);
+        state.ex[skey] = { resp, pts: g.pts }; save(); updateScores();
+      });
+      const saved = state.ex[skey];
+      if (saved) { try { api.setResp(saved.resp); reveal(saved.resp); } catch (e) { delete state.ex[skey]; } }
+      panel.appendChild(box);
+    });
+
+    panel.appendChild(el("div", { class: "section-title" }, "③ After the exercises: my review"));
+    const after = el("div", { class: "meta-box" });
+    after.appendChild(el("p", { class: "intro" }, "Compare how sure you felt with your real results."));
+    const out = el("div");
+    const rb = el("button", { class: "check-btn", type: "button", style: "margin-top:0" }, "See my review");
+    rb.addEventListener("click", () => { out.innerHTML = reviewTable(n); updatePlan.style.display = "block"; });
+    after.appendChild(rb); after.appendChild(out);
+
+    const updatePlan = el("div", { style: "display:none; margin-top:16px" });
+    updatePlan.appendChild(el("p", { class: "obj-text" }, "Now, how sure do you feel?"));
+    updatePlan.appendChild(ratingBlock(n, "after"));
+    updatePlan.appendChild(el("p", { class: "obj-text", style: "margin-top:14px" }, "What will I do to revise this lesson? (choose one or more)"));
+    const plans = ["Reread the key ideas", "Redo the exercises tomorrow", "Learn the glossary words", "Explain the lesson out loud to someone", "Ask my teacher a question"];
+    const chips = el("div", { class: "scale" });
+    const myPlan = state.plan[n] = state.plan[n] || [];
+    plans.forEach((p, k) => {
+      const c = el("button", { type: "button", class: "chip" + (myPlan.includes(k) ? " on" : "") }, p);
+      c.addEventListener("click", () => {
+        const at = myPlan.indexOf(k); if (at < 0) myPlan.push(k); else myPlan.splice(at, 1);
+        c.classList.toggle("on"); save();
+      });
+      chips.appendChild(c);
+    });
+    updatePlan.appendChild(chips);
+    after.appendChild(updatePlan);
+    if (lessonScore(n).done) { out.innerHTML = reviewTable(n); updatePlan.style.display = "block"; }
+    panel.appendChild(after);
+
+    const key = el("details", { class: "key" });
+    key.appendChild(el("summary", null, "Key ideas of Lesson " + n + " (take-home message)"));
+    key.appendChild(el("ul", null, L.keyIdeas.map(k => "<li>" + k + "</li>").join("")));
+    panel.appendChild(key);
+
+    const reset = el("button", { class: "reset-btn", type: "button" }, "↺ Start this lesson again");
+    reset.addEventListener("click", () => {
+      if (!confirm("Erase your answers for Lesson " + n + "?")) return;
+      L.exercises.forEach((ex, i) => delete state.ex[n + "-" + i]);
+      delete state.before[n]; delete state.after[n]; delete state.plan[n];
+      save(); panel.innerHTML = ""; buildLesson(meta, panel); updateScores();
+    });
+    panel.appendChild(reset);
+  }
+
+  function buildLocked(meta, panel) {
+    panel.style.setProperty("--lc", "var(--l" + meta.n + ")");
+    panel.appendChild(el("div", { class: "locked-box" },
+      "<div class='big'>🔒</div><h2>Lesson " + meta.n + ": " + meta.title + "</h2>" +
+      "<p class='question'>" + meta.q + "</p>" +
+      "<p>This review will open after we have done this lesson in class.</p>"));
+  }
+
+  function buildGlossary(panel) {
+    panel.appendChild(el("h2", null, "Glossary: English → French"));
+    panel.appendChild(el("p", { class: "question" }, "Key words of the open lessons. Type a word (in English or in French) to find it."));
+    const search = el("input", { class: "gloss-search", type: "search", placeholder: "Search a word…" });
+    panel.appendChild(search);
+    const wrap = el("div", { class: "gloss" });
+    LESSON_META.forEach(m => {
+      const L = LESSONS[m.n]; if (!L) return;
+      const sec = el("div");
+      sec.appendChild(el("h3", null, "Lesson " + m.n + ": " + m.title));
+      const t = el("table", { class: "gloss" });
+      t.innerHTML = "<tr><th>English</th><th>Meaning</th><th>Français</th></tr>" +
+        L.glossary.map(g => "<tr data-s=\"" + norm(g.join(" ")) + "\"><td>" + g[0] + "</td><td>" + g[1] + "</td><td>" + g[2] + "</td></tr>").join("");
+      sec.appendChild(t); wrap.appendChild(sec);
+    });
+    panel.appendChild(wrap);
+    search.addEventListener("input", () => {
+      const q = norm(search.value);
+      wrap.querySelectorAll("tr[data-s]").forEach(tr => tr.style.display = !q || tr.dataset.s.includes(q) ? "" : "none");
+    });
+  }
+
+  /* ---------- tabs ---------- */
+  const tabs = document.getElementById("tabs"), panels = document.getElementById("panels");
+  const tabList = [];
+  LESSON_META.forEach(m => {
+    const open = !!LESSONS[m.n];
+    const b = el("button", { class: "tab-btn" + (open ? "" : " locked"), type: "button", style: "background:var(--l" + m.n + ")" },
+      (open ? "" : "🔒 ") + "Lesson " + m.n + "<small>" + m.short + "</small>");
+    const p = el("section", { class: "panel" });
+    if (open) buildLesson(m, p); else buildLocked(m, p);
+    tabs.appendChild(b); panels.appendChild(p);
+    tabList.push({ id: "L" + m.n, b, p });
+  });
+  const gb = el("button", { class: "tab-btn glossary", type: "button" }, "📖 Glossary<small>EN → FR</small>");
+  const gp = el("section", { class: "panel" }); buildGlossary(gp);
+  tabs.appendChild(gb); panels.appendChild(gp); tabList.push({ id: "G", b: gb, p: gp });
+
+  function activate(id) {
+    tabList.forEach(t => { const on = t.id === id; t.b.classList.toggle("active", on); t.p.classList.toggle("active", on); });
+    state.tab = id; save();
+  }
+  tabList.forEach(t => t.b.addEventListener("click", () => activate(t.id)));
+  const openIds = Object.keys(LESSONS).map(Number).sort((a, b) => a - b);
+  const valid = tabList.some(t => t.id === state.tab) && (state.tab === "G" || LESSONS[state.tab.slice(1)]);
+  activate(valid ? state.tab : "L" + openIds[0]);
+
+  document.getElementById("subtitle").textContent = openIds.length === LESSON_META.length
+    ? "Review of Lessons 1 to " + LESSON_META.length
+    : "Review of Lessons 1 to " + openIds[openIds.length - 1] + " (more lessons coming soon)";
+  updateScores();
+})();
+</script>
+</body>
+</html>
