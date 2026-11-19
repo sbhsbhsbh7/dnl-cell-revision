@@ -463,7 +463,7 @@ LESSONS[4] = {
   objectives: [
     { id: "o1", text: "I can describe the steps of somatic cell nuclear transfer and the roles of the three sheep." },
     { id: "o2", text: "I can tell a clue from strong evidence about Dolly’s origin." },
-    { id: "o3", text: "I can explain why Dolly was a step forward, and what nuclear reprogramming means." }
+    { id: "o3", text: "I can explain why Dolly was a step forward." }
   ],
   exercises: [
     { type: "order", obj: "o1", q: "Put the steps of somatic cell nuclear transfer (SCNT) in order.",
@@ -498,13 +498,6 @@ LESSONS[4] = {
       options: ["Dolly was the first animal ever cloned", "Dolly was the first sheep ever cloned", "The donor cell was a specialised adult cell, whose unneeded genes are switched off: it had to be reprogrammed", "Dolly did not need a surrogate mother"], answer: 2,
       why: "Embryo cells are ready to activate any gene; a specialised adult cell has switched off the genes it does not need. Dolly showed that such a nucleus can be reprogrammed to direct the development of a whole mammal.",
       mistake: "Dolly was not the first clone: frogs (Gurdon, 1962) and sheep from embryo cells (Willadsen, 1984) had been cloned before." },
-    { type: "mcq", obj: "o3", q: "What does nuclear reprogramming change in the adult nucleus?",
-      options: ["The DNA sequence is reset to zero", "Which genes are active: the egg cytoplasm switches genes back on so that development can start", "The number of chromosomes", "Nothing: the nucleus stays exactly as it was"], answer: 1,
-      why: "A specialised cell still contains all the genetic information, but many genes are switched off. The egg cytoplasm changes which genes are active.",
-      mistake: "Common mistake: saying the DNA is “reset”. It is gene activity that changes, not the DNA sequence." },
-    { type: "fill", obj: "o3", q: "Fill in the gap with a number.",
-      text: "In Dolly’s experiment, 277 cells were fused, 29 embryos were transferred, and only [[1|one]] lamb was born.",
-      why: "Cloning often fails: problems can occur during reprogramming and at other stages of development." },
     { type: "tf", obj: "o3", statement: "Dolly showed that the nucleus of a specialised cell from an adult mammal can direct the development of a whole new animal.", answer: true,
       why: "True. Before Dolly, many scientists thought that this was impossible in mammals." }
   ],
@@ -539,7 +532,7 @@ LESSONS[4] = {
 
 <script>
 (function () {
-  const STORE_KEY = "dnl1-cell-review-v1";
+  const STORE_KEY = "dnl1-cell-review-v2";
   const CONF = ["Not yet", "A little", "Quite sure", "Very sure"];
 
   /* ---------- storage (optional: the page works without it) ---------- */
@@ -588,6 +581,12 @@ LESSONS[4] = {
     for (const a of accepted) if (norm(a) === g) return 2;
     for (const a of accepted) { const na = norm(a); if (na.length >= 5 && lev(na, g) <= 1) return 1; }
     return 0;
+  }
+  /* saved answers are keyed by the question's content, so editing or removing a question never mixes answers up */
+  function exKey(n, ex) {
+    const s = JSON.stringify(ex); let h = 5381;
+    for (let k = 0; k < s.length; k++) h = ((h * 33) ^ s.charCodeAt(k)) >>> 0;
+    return n + "-" + h.toString(36);
   }
   const fmt = x => (Math.round(x * 10) / 10).toString();
   const TYPE_LABEL = { mcq: "Multiple choice", tf: "True or false", fill: "Fill in", order: "Put in order", sort: "Sort", match: "Match" };
@@ -794,8 +793,8 @@ LESSONS[4] = {
   /* ---------- scores ---------- */
   function lessonScore(n) {
     const L = LESSONS[n]; let pts = 0;
-    L.exercises.forEach((ex, i) => { const s = state.ex[n + "-" + i]; if (s) pts += s.pts; });
-    return { pts, max: L.exercises.length, done: L.exercises.filter((ex, i) => state.ex[n + "-" + i]).length };
+    L.exercises.forEach((ex, i) => { const s = state.ex[exKey(n, ex)]; if (s) pts += s.pts; });
+    return { pts, max: L.exercises.length, done: L.exercises.filter((ex, i) => state.ex[exKey(n, ex)]).length };
   }
   function updateScores() {
     let pts = 0, max = 0;
@@ -837,7 +836,7 @@ LESSONS[4] = {
     if (s.done < s.max) html += "<p class='ex-help' style='margin-top:10px'>You have done " + s.done + " of " + s.max + " exercises. Your review is more useful when everything is done.</p>";
     L.objectives.forEach(o => {
       let p = 0, m = 0;
-      L.exercises.forEach((ex, i) => { if (ex.obj !== o.id) return; const st = state.ex[n + "-" + i]; if (st) { p += st.pts; m += 1; } });
+      L.exercises.forEach((ex, i) => { if (ex.obj !== o.id) return; const st = state.ex[exKey(n, ex)]; if (st) { p += st.pts; m += 1; } });
       const pct = m ? Math.round(100 * p / m) : null;
       const c = before[o.id];
       let tag, msg;
@@ -874,7 +873,7 @@ LESSONS[4] = {
     }
     function resetLesson() {
       if (!confirm("Erase all your answers for Lesson " + n + "?")) return;
-      L.exercises.forEach((ex, i) => delete state.ex[n + "-" + i]);
+      L.exercises.forEach((ex, i) => delete state.ex[exKey(n, ex)]);
       delete state.before[n]; delete state.after[n]; delete state.plan[n];
       save(); rebuild();
     }
@@ -890,7 +889,7 @@ LESSONS[4] = {
 
     panel.appendChild(el("div", { class: "section-title" }, "② Exercises"));
     L.exercises.forEach((ex, i) => {
-      const key = "l" + n + "e" + i, skey = n + "-" + i;
+      const key = "l" + n + "e" + i, skey = exKey(n, ex);
       const box = el("div", { class: "exercise" });
       const head = el("div", { class: "ex-head" });
       head.appendChild(el("div", { class: "ex-q" }, (i + 1) + ". " + (ex.q || "True or false?")));
