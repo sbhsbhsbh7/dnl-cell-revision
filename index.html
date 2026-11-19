@@ -96,6 +96,9 @@
   .ex-q { font-weight: 700; }
   .ex-type { font-size: .72em; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); white-space: nowrap; }
   .ex-help { color: var(--muted); font-size: .88em; margin: -4px 0 10px; }
+  .ex-fig { margin: 0 0 12px; text-align: center; }
+  .ex-fig img { max-width: 100%; max-height: 520px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+  .ex-fig figcaption { color: var(--muted); font-size: .78em; margin-top: 4px; }
 
   .option {
     display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 2px solid var(--line);
@@ -466,12 +469,15 @@ LESSONS[4] = {
     { type: "order", obj: "o1", q: "Put the steps of somatic cell nuclear transfer (SCNT) in order.",
       items: ["The nucleus of an unfertilised egg cell is removed (enucleation)", "An adult udder cell is fused with this egg cell, using an electric pulse", "The new cell divides and forms a young embryo", "The embryo is placed in the uterus of a surrogate ewe", "Dolly is born on 5 July 1996"],
       why: "The electric pulse makes the two membranes fuse and triggers the first divisions, as fertilisation normally does." },
-    { type: "match", obj: "o1", q: "Match each sheep with its role.",
-      pairs: [["Finn Dorset ewe (white face)", "Gave the adult udder cell and its nucleus"], ["Scottish Blackface ewe (egg donor)", "Gave the egg cell: its nucleus was removed, its cytoplasm was kept"], ["Scottish Blackface ewe (surrogate)", "Carried the embryo until birth"]],
-      why: "Three roles: nucleus donor, egg donor, surrogate mother." },
-    { type: "tf", obj: "o1", statement: "The surrogate mother gave Dolly her nuclear DNA.", answer: false,
-      why: "False. The surrogate mother only carried the embryo. Dolly’s nuclear DNA came from the Finn Dorset donor cell.",
-      mistake: "Common mistake: confusing carrying an embryo with passing on genes." },
+    { type: "match", obj: "o1", q: "Use the diagram: match each sheep with its role.",
+      img: "img/l4_scnt_diagram.jpg", caption: "Somatic cell nuclear transfer. Modified from OpenStax, Biology 2e (CC BY 4.0), with data from Wilmut et al., Nature, 1997.",
+      pairs: [["Sheep 1", "Gave the egg cell: its nucleus was removed, its cytoplasm was kept"], ["Sheep 2", "Gave the adult udder cell and its nucleus"], ["Sheep 3", "Carried the embryo until birth"]],
+      why: "Follow the colours: the nucleus of the new cell is purple, like Sheep 2’s cells; the egg cytoplasm is orange, like Sheep 1’s egg; the embryo develops in Sheep 3’s uterus. Three roles: egg donor, nucleus donor, surrogate mother." },
+    { type: "mcq", obj: "o1", q: "Use the diagram again. Which sheep did Dolly’s nuclear DNA come from?",
+      img: "img/l4_scnt_diagram.jpg",
+      options: ["Sheep 1, because she gave the egg cell", "Sheep 2, because the nucleus of the new cell comes from her udder cell", "Sheep 3, because Dolly grew in her uterus", "A mix of the three sheep"], answer: 1,
+      why: "The nucleus contains the nuclear DNA, and the nucleus of the new cell comes from Sheep 2.",
+      mistake: "Common mistake: thinking that the sheep that gives birth passes on her genes. Sheep 3 only carried the embryo." },
     { type: "fill", obj: "o1", q: "Fill in the gaps.",
       text: "Removing the nucleus of a cell is called [[enucleation]]. Any cell of the body except egg cells and sperm cells is a [[somatic]] cell.",
       why: "Hence the name: somatic cell nuclear transfer (SCNT)." },
@@ -488,9 +494,10 @@ LESSONS[4] = {
     { type: "mcq", obj: "o2", q: "Why did it matter that one of the 1998 DNA studies was done by an independent team?",
       options: ["It was cheaper", "If a different team, with different methods, finds the same result, it is much less likely to be a mistake or a bias of the first team", "The Roslin team did not know how to analyse DNA", "Independent teams are always right"], answer: 1,
       why: "Just like Hooke confirming Leeuwenhoek’s animalcules: independent confirmation makes a result reliable." },
-    { type: "match", obj: "o3", q: "Three steps in the history of cloning: match each experiment with its donor cell.",
-      pairs: [["1962, frogs (Gurdon)", "A specialised cell from a tadpole’s intestine"], ["1984, sheep (Willadsen)", "A not-yet-specialised cell from an 8-cell embryo"], ["1996, Dolly (Wilmut and Campbell)", "A specialised cell from an adult sheep’s udder"]],
-      why: "Dolly was the first mammal cloned from an adult somatic cell." },
+    { type: "mcq", obj: "o3", q: "In 1984, Willadsen cloned sheep using a cell from an 8-cell embryo, whose cells are not yet specialised. In 1996, Dolly was cloned from an udder cell of an adult sheep. Why was Dolly a step forward?",
+      options: ["Dolly was the first animal ever cloned", "Dolly was the first sheep ever cloned", "The donor cell was a specialised adult cell, whose unneeded genes are switched off: it had to be reprogrammed", "Dolly did not need a surrogate mother"], answer: 2,
+      why: "Embryo cells are ready to activate any gene; a specialised adult cell has switched off the genes it does not need. Dolly showed that such a nucleus can be reprogrammed to direct the development of a whole mammal.",
+      mistake: "Dolly was not the first clone: frogs (Gurdon, 1962) and sheep from embryo cells (Willadsen, 1984) had been cloned before." },
     { type: "mcq", obj: "o3", q: "What does nuclear reprogramming change in the adult nucleus?",
       options: ["The DNA sequence is reset to zero", "Which genes are active: the egg cytoplasm switches genes back on so that development can start", "The number of chromosomes", "Nothing: the nucleus stays exactly as it was"], answer: 1,
       why: "A specialised cell still contains all the genetic information, but many genes are switched off. The egg cytoplasm changes which genes are active.",
@@ -889,6 +896,14 @@ LESSONS[4] = {
       head.appendChild(el("div", { class: "ex-q" }, (i + 1) + ". " + (ex.q || "True or false?")));
       head.appendChild(el("div", { class: "ex-type" }, TYPE_LABEL[ex.type]));
       box.appendChild(head);
+      if (ex.img) {
+        const fig = el("figure", { class: "ex-fig" });
+        const a = el("a", { href: ex.img, target: "_blank", rel: "noopener" });
+        a.appendChild(el("img", { src: ex.img, alt: ex.caption || "Diagram", loading: "lazy" }));
+        fig.appendChild(a);
+        fig.appendChild(el("figcaption", null, (ex.caption ? ex.caption + " " : "") + "Tap the image to enlarge it."));
+        box.appendChild(fig);
+      }
       const body = el("div"); box.appendChild(body);
       const api = R[ex.type](ex, body, key);
       const btn = el("button", { class: "check-btn", type: "button" }, "Check");
