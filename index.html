@@ -693,10 +693,15 @@ LESSONS[4] = {
       function onMove(ev) {
         if (ev.clientY < 70) window.scrollBy(0, -10);
         else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 10);
-        const y = ev.clientY, k = order.indexOf(i);
-        const prev = order[k - 1], next = order[k + 1];
-        if (prev != null) { const r = cards[prev].getBoundingClientRect(); if (y < r.top + r.height / 2) { list.insertBefore(cards[prev], card.nextSibling); [order[k - 1], order[k]] = [i, prev]; renumber(); } }
-        if (next != null) { const r = cards[next].getBoundingClientRect(); if (y > r.top + r.height / 2) { list.insertBefore(cards[next], card); [order[k], order[k + 1]] = [next, i]; renumber(); } }
+        const y = ev.clientY;
+        const mid = j => { const r = cards[j].getBoundingClientRect(); return r.top + r.height / 2; };
+        for (let k = order.indexOf(i); k > 0 && y < mid(order[k - 1]); k--) {
+          const prev = order[k - 1]; list.insertBefore(cards[prev], card.nextSibling); [order[k - 1], order[k]] = [i, prev];
+        }
+        for (let k = order.indexOf(i); k < n - 1 && y > mid(order[k + 1]); k++) {
+          const next = order[k + 1]; list.insertBefore(cards[next], card); [order[k], order[k + 1]] = [next, i];
+        }
+        renumber();
         card.style.transform = "none";
         const natural = card.getBoundingClientRect().top;
         card.style.transform = "translateY(" + (y - offset - natural) + "px)";
