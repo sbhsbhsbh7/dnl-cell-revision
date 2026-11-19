@@ -770,7 +770,7 @@ LESSONS[4] = {
   R.match = function (ex, body) {
     const rightOrder = shuffledIdx(ex.pairs.length);
     const rows = [];
-    shuffledIdx(ex.pairs.length).forEach(i => {
+    ex.pairs.forEach((pair, i) => {
       const row = el("div", { class: "match-row" });
       row.appendChild(el("div", { class: "left" }, ex.pairs[i][0]));
       const sel = el("select");
@@ -899,7 +899,7 @@ LESSONS[4] = {
       if (ex.img) {
         const fig = el("figure", { class: "ex-fig" });
         const a = el("a", { href: ex.img, target: "_blank", rel: "noopener" });
-        a.appendChild(el("img", { src: ex.img, alt: ex.caption || "Diagram", loading: "lazy" }));
+        a.appendChild(el("img", { src: ex.img, alt: ex.caption || "Diagram" }));
         fig.appendChild(a);
         fig.appendChild(el("figcaption", null, (ex.caption ? ex.caption + " " : "") + "Tap the image to enlarge it."));
         box.appendChild(fig);
