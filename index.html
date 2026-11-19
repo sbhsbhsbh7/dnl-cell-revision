@@ -219,6 +219,7 @@
   <div class="panel total-panel">
     <div class="lbl">Your total score (open lessons)</div>
     <div class="score-display" style="margin-top:0"><span id="total-score-2">0 / 0</span></div>
+    <div><button class="reset-btn" type="button" id="reset-all">↺ Erase all my answers (all lessons)</button></div>
   </div>
 </div>
 
@@ -821,6 +822,20 @@ LESSONS[4] = {
     panel.appendChild(el("p", { class: "question" }, meta.q));
     panel.appendChild(el("div", { class: "lesson-score", id: "ls-" + n }));
 
+    function rebuild(focus) {
+      panel.innerHTML = ""; buildLesson(meta, panel); updateScores();
+      if (focus != null) panel.querySelectorAll(".exercise")[focus].scrollIntoView({ block: "center" });
+    }
+    function resetLesson() {
+      if (!confirm("Erase all your answers for Lesson " + n + "?")) return;
+      L.exercises.forEach((ex, i) => delete state.ex[n + "-" + i]);
+      delete state.before[n]; delete state.after[n]; delete state.plan[n];
+      save(); rebuild();
+    }
+    const topReset = el("button", { class: "reset-btn", type: "button", style: "margin:0 0 0 8px" }, "↺ Erase my answers");
+    topReset.addEventListener("click", resetLesson);
+    panel.appendChild(topReset);
+
     panel.appendChild(el("div", { class: "section-title" }, "① Before you start: how sure do you feel?"));
     const before = el("div", { class: "meta-box" });
     before.appendChild(el("p", { class: "intro" }, "Be honest: there is no wrong answer here. You will compare with your results at the end."));
@@ -839,11 +854,14 @@ LESSONS[4] = {
       const api = R[ex.type](ex, body, key);
       const btn = el("button", { class: "check-btn", type: "button" }, "Check");
       const fb = el("div", { class: "feedback" });
-      box.appendChild(btn); box.appendChild(fb);
+      const retry = el("button", { class: "reset-btn", type: "button", style: "display:none; margin-top:10px" }, "↺ Try again");
+      retry.addEventListener("click", () => { delete state.ex[skey]; save(); rebuild(i); });
+      box.appendChild(btn); box.appendChild(fb); box.appendChild(retry);
 
       function reveal(resp) {
         const g = api.grade(resp);
         api.show(resp, g); api.lock(); btn.disabled = true; btn.textContent = "Done";
+        retry.style.display = "inline-block";
         const full = g.pts >= 0.999, zero = g.pts <= 0.001;
         fb.className = "feedback show " + (full ? "ok" : zero ? "ko" : "mid");
         const parts = g.ok || (g.res && g.res.map(x => x > 0));
@@ -899,13 +917,8 @@ LESSONS[4] = {
     key.appendChild(el("ul", null, L.keyIdeas.map(k => "<li>" + k + "</li>").join("")));
     panel.appendChild(key);
 
-    const reset = el("button", { class: "reset-btn", type: "button" }, "↺ Start this lesson again");
-    reset.addEventListener("click", () => {
-      if (!confirm("Erase your answers for Lesson " + n + "?")) return;
-      L.exercises.forEach((ex, i) => delete state.ex[n + "-" + i]);
-      delete state.before[n]; delete state.after[n]; delete state.plan[n];
-      save(); panel.innerHTML = ""; buildLesson(meta, panel); updateScores();
-    });
+    const reset = el("button", { class: "reset-btn", type: "button" }, "↺ Erase my answers and start this lesson again");
+    reset.addEventListener("click", resetLesson);
     panel.appendChild(reset);
   }
 
@@ -967,6 +980,11 @@ LESSONS[4] = {
   document.getElementById("subtitle").textContent = openIds.length === LESSON_META.length
     ? "Review of Lessons 1 to " + LESSON_META.length
     : "Review of Lessons 1 to " + openIds[openIds.length - 1] + " (more lessons coming soon)";
+  document.getElementById("reset-all").addEventListener("click", () => {
+    if (!confirm("Erase all your answers, in every lesson?")) return;
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+    location.reload();
+  });
   updateScores();
 })();
 </script>
