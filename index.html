@@ -262,14 +262,14 @@
     <h1>The Cell: from Discovery to Biotechnology</h1>
     <p class="subtitle" id="subtitle">Review of the lessons</p>
     <p class="level">DNL SVT Première | M. LOUIS</p>
-    <div class="score-display">Total score <span id="total-score">0 / 0</span></div>
+    <div class="score-display">Average of the open lessons <span id="total-score">0 / 0</span></div>
   </header>
 
   <nav class="tabs" id="tabs"></nav>
   <main id="panels"></main>
 
   <div class="panel total-panel">
-    <div class="lbl">Your total score (open lessons)</div>
+    <div class="lbl">Your average (open lessons)</div>
     <div class="score-display" style="margin-top:0"><span id="total-score-2">0 / 0</span></div>
     <div><button class="reset-btn" type="button" id="reset-all">↺ Erase all my answers (all lessons)</button></div>
   </div>
@@ -835,15 +835,16 @@ LESSONS[4] = {
     L.exercises.forEach((ex, i) => { const s = state.ex[exKey(n, ex)]; if (s) pts += s.pts; });
     return { pts, max: L.exercises.length, done: L.exercises.filter((ex, i) => state.ex[exKey(n, ex)]).length };
   }
+  const on20 = (pts, max) => fmt(Math.round(40 * pts / max) / 2) + " / 20";
   function updateScores() {
-    let pts = 0, max = 0;
+    let sum = 0, count = 0;
     Object.keys(LESSONS).forEach(n => {
-      const s = lessonScore(n); pts += s.pts; max += s.max;
+      const s = lessonScore(n); sum += s.pts / s.max; count += 1;
       const tag = document.getElementById("ls-" + n);
-      if (tag) tag.textContent = "Lesson score: " + fmt(s.pts) + " / " + s.max + "  (" + s.done + " / " + s.max + " done)";
+      if (tag) tag.textContent = "Lesson score: " + on20(s.pts, s.max) + "  (" + s.done + " / " + s.max + " questions done)";
     });
-    document.getElementById("total-score").textContent = fmt(pts) + " / " + max;
-    document.getElementById("total-score-2").textContent = fmt(pts) + " / " + max;
+    document.getElementById("total-score").textContent = on20(sum, count);
+    document.getElementById("total-score-2").textContent = on20(sum, count);
   }
 
   /* ---------- metacognition ---------- */
@@ -946,7 +947,7 @@ LESSONS[4] = {
       const api = R[ex.type](ex, body, key);
       const btn = el("button", { class: "check-btn", type: "button" }, "Check");
       const fb = el("div", { class: "feedback" });
-      const retry = el("button", { class: "reset-btn", type: "button", style: "display:none; margin-top:10px" }, "↺ Try again");
+      const retry = el("button", { class: "reset-btn", type: "button", style: "display:none; margin-top:10px" }, "↺ Erase my answer and try again");
       retry.addEventListener("click", () => { delete state.ex[skey]; save(); rebuild(i); });
       box.appendChild(btn); box.appendChild(fb); box.appendChild(retry);
 
@@ -1104,7 +1105,7 @@ LESSONS[4] = {
     home.hidden = !!view;
     views.forEach(v => v.hidden = v !== view);
     if (!view) document.getElementById("theme1-info").textContent =
-      LESSON_META.length + " lessons, " + openCount + " open · Your score: " + document.getElementById("total-score").textContent;
+      LESSON_META.length + " lessons, " + openCount + " open · Your average: " + document.getElementById("total-score").textContent;
     window.scrollTo(0, 0);
   }
   document.querySelectorAll("[data-theme]").forEach(b => b.addEventListener("click", () => { location.hash = b.dataset.theme; }));
