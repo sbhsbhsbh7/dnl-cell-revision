@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DNL SVT Première — The Cell: Review</title>
+<title>DNL SVT Première — Review</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -218,13 +218,47 @@
   table.gloss td:last-child { color: var(--accent); font-style: italic; }
   .gloss h3 { margin-top: 10px; color: var(--accent); font-size: 1em; }
 
+  .back-btn {
+    display: inline-block; margin-bottom: 10px; background: var(--soft); border: 1px solid var(--line); color: var(--accent);
+    border-radius: 20px; padding: 6px 14px; font-weight: 600; font-size: .85em; cursor: pointer;
+  }
+  .home-intro { color: var(--muted); margin-top: 6px; }
+  .themes { display: flex; flex-direction: column; gap: 14px; }
+  .theme-card {
+    display: block; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+    background: var(--card); border: none; border-left: 8px solid var(--accent); border-radius: 15px;
+    padding: 18px 16px; box-shadow: 0 10px 40px rgba(0,0,0,.25); transition: transform .2s ease;
+  }
+  .theme-card:hover { transform: translateY(-2px); }
+  .theme-card .num { font-size: .78em; text-transform: uppercase; letter-spacing: .6px; color: var(--accent); font-weight: 700; }
+  .theme-card .ttl { font-size: 1.25em; font-weight: 700; margin: 2px 0 6px; }
+  .theme-card .info { color: var(--muted); font-size: .9em; }
+  .theme-card .go { margin-top: 10px; font-weight: 700; color: var(--accent); }
+
   .total-panel { margin-top: 20px; text-align: center; padding: 18px 15px; display: block; }
   .total-panel .lbl { text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-size: .9em; margin-bottom: 6px; }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="home">
   <header>
+    <h1>DNL SVT Première: Review</h1>
+    <p class="home-intro">Choose a theme to review.</p>
+    <p class="level">DNL SVT Première | M. LOUIS</p>
+  </header>
+  <div class="themes">
+    <button class="theme-card" type="button" data-theme="theme1">
+      <div class="num">Theme 1</div>
+      <div class="ttl">The Cell: from Discovery to Biotechnology</div>
+      <div class="info" id="theme1-info"></div>
+      <div class="go">Start reviewing →</div>
+    </button>
+  </div>
+</div>
+
+<div class="container" id="theme1" hidden>
+  <header>
+    <button class="back-btn" type="button" data-home>← All themes</button>
     <h1>The Cell: from Discovery to Biotechnology</h1>
     <p class="subtitle" id="subtitle">Review of the lessons</p>
     <p class="level">DNL SVT Première | M. LOUIS</p>
@@ -1057,6 +1091,28 @@ LESSONS[4] = {
     location.reload();
   });
   updateScores();
+})();
+
+/* ---------- home page: choose a theme (add a card in #home for each new theme) ---------- */
+(function () {
+  const home = document.getElementById("home");
+  const views = Array.from(document.querySelectorAll(".container[id^='theme']"));
+  const openCount = Object.keys(LESSONS).length;
+  function route() {
+    const id = location.hash.slice(1);
+    const view = views.find(v => v.id === id);
+    home.hidden = !!view;
+    views.forEach(v => v.hidden = v !== view);
+    if (!view) document.getElementById("theme1-info").textContent =
+      LESSON_META.length + " lessons, " + openCount + " open · Your score: " + document.getElementById("total-score").textContent;
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll("[data-theme]").forEach(b => b.addEventListener("click", () => { location.hash = b.dataset.theme; }));
+  document.querySelectorAll("[data-home]").forEach(b => b.addEventListener("click", () => {
+    location.hash = "";
+  }));
+  window.addEventListener("hashchange", route);
+  route();
 })();
 </script>
 </body>
